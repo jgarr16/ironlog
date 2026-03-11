@@ -169,13 +169,18 @@
     .cardio-laps-btn:active { opacity: 0.7; }
     .cardio-laps-val { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; min-width: 36px; text-align: center; }
     .cardio-laps-unit { font-size: 10px; color: var(--muted); }
+    .cardio-unit-toggle { display: flex; gap: 4px; margin-top: 6px; }
+    .unit-btn { flex: 1; padding: 4px 0; border-radius: 5px; border: 1px solid var(--border); background: var(--s3); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+    .unit-btn.active { background: var(--john); border-color: var(--john); color: #000; }
     .cardio-checks { display: flex; flex-direction: column; gap: 5px; }
     .cardio-check-btn { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: var(--muted2); user-select: none; }
     .cardio-check-btn.checked { color: var(--text); }
     .cardio-check-box { width: 20px; height: 20px; border-radius: 4px; border: 2px solid var(--border); background: var(--s2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; transition: all 0.15s; }
     .cardio-check-btn.checked .cardio-check-box { background: #22c55e; border-color: #22c55e; color: #000; }
-    .rest-day-msg { padding: 32px 18px; text-align: center; color: var(--muted); font-size: 15px; }
-    .rest-day-msg .rest-icon { font-size: 40px; margin-bottom: 10px; }
+    .cardio-notes-row { padding: 10px 12px; border-top: 1px solid var(--border); }
+    .cardio-notes-input { width: 100%; background: var(--s2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 8px 10px; font-size: 13px; font-family: 'Barlow', sans-serif; outline: none; box-sizing: border-box; }
+    .cardio-notes-input:focus { border-color: var(--accent); }
+    .cardio-notes-input::placeholder { color: var(--muted); }
 
     /* ─── ACTIVE EXERCISE ─── */
     .ex-header { background: var(--s1); padding: 16px 18px 18px; border-bottom: 1px solid var(--border); }
@@ -841,7 +846,7 @@ const S = {
   weights: {}, // { exerciseId: { john: N, kyong: N } }
   sessions: [],
   coachMsgs: [],
-  cardio: { john: { laps: 101 }, kyong: { elliptical: false, treadmill: false, stairway: false } }
+  cardio: { john: { laps: 101, unit: 'yards', swam: false }, kyong: { elliptical: false, treadmill: false, stairway: false }, notes: '' }
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -858,6 +863,8 @@ async function boot() {
   await bootFirebase(cfg);
   await fetchWeights();
   await fetchSessions();
+  const lastUnit = S.sessions.find(s => s.cardio?.john?.unit)?.cardio.john.unit;
+  if (lastUnit) S.cardio.john.unit = lastUnit;
   S.dayIdx = calcDayIdx();
   showScreen('home');
   renderHome();
@@ -1013,51 +1020,56 @@ function renderHome() {
     </div>`;
   }).join('');
 
-  const isRestDay   = day.dayNum === 7;
-  const isCardioDay = day.dayNum === 6;
+  const isCardioOrRest = day.dayNum === 6 || day.dayNum === 7;
 
-  // Cardio card (shown on all days except rest)
-  if (isRestDay) {
-    document.getElementById('cardio-section').innerHTML = '';
-  } else {
-    const c = S.cardio;
-    const checkBtn = (act, label) => {
-      const on = c.kyong[act];
-      return `<div class="cardio-check-btn ${on ? 'checked' : ''}" onclick="toggleCardioActivity('${act}')">
-        <div class="cardio-check-box">${on ? '✓' : ''}</div>${label}</div>`;
-    };
-    document.getElementById('cardio-section').innerHTML = `
-      <div class="cardio-card">
-        <div class="cardio-header"><div class="cardio-num">0</div><div class="cardio-title">Cardio</div></div>
-        <div class="cardio-body">
-          <div class="cardio-person john-side">
-            <div class="cardio-person-label">John — Swimming</div>
-            <div class="cardio-laps-row">
-              <button class="cardio-laps-btn" onclick="updateLaps(-1)">−</button>
-              <span class="cardio-laps-val" id="cardio-laps-val">${c.john.laps}</span>
-              <span class="cardio-laps-unit">laps</span>
-              <button class="cardio-laps-btn" onclick="updateLaps(1)">+</button>
-            </div>
+  // Cardio card (shown on all days)
+  const c = S.cardio;
+  const checkBtn = (act, label) => {
+    const on = c.kyong[act];
+    return `<div class="cardio-check-btn ${on ? 'checked' : ''}" onclick="toggleCardioActivity('${act}')">
+      <div class="cardio-check-box">${on ? '✓' : ''}</div>${label}</div>`;
+  };
+  const notesRow = isCardioOrRest ? `
+    <div class="cardio-notes-row">
+      <input class="cardio-notes-input" type="text" placeholder="Notes for today (optional)…"
+        value="${c.notes || ''}" oninput="S.cardio.notes=this.value">
+    </div>` : '';
+  document.getElementById('cardio-section').innerHTML = `
+    <div class="cardio-card">
+      <div class="cardio-header"><div class="cardio-num">0</div><div class="cardio-title">Cardio</div></div>
+      <div class="cardio-body">
+        <div class="cardio-person john-side">
+          <div class="cardio-person-label">John — Swimming</div>
+          <div class="cardio-laps-row">
+            <button class="cardio-laps-btn" onclick="updateLaps(-1)">−</button>
+            <span class="cardio-laps-val" id="cardio-laps-val">${c.john.laps}</span>
+            <span class="cardio-laps-unit">laps</span>
+            <button class="cardio-laps-btn" onclick="updateLaps(1)">+</button>
           </div>
-          <div class="cardio-person kyong-side">
-            <div class="cardio-person-label">Kyong — Cardio</div>
-            <div class="cardio-checks">
-              ${checkBtn('elliptical', 'Elliptical')}
-              ${checkBtn('treadmill',  'Treadmill')}
-              ${checkBtn('stairway',   'Stairway')}
+          <div class="cardio-unit-toggle">
+            <button class="unit-btn ${c.john.unit==='yards'?'active':''}" onclick="setSwimUnit('yards')">YDS</button>
+            <button class="unit-btn ${c.john.unit==='meters'?'active':''}" onclick="setSwimUnit('meters')">MTR</button>
+          </div>
+          <div style="margin-top:8px">
+            <div class="cardio-check-btn ${c.john.swam?'checked':''}" onclick="toggleSwam()">
+              <div class="cardio-check-box">${c.john.swam?'✓':''}</div>Did swim today
             </div>
           </div>
         </div>
-      </div>`;
-  }
+        <div class="cardio-person kyong-side">
+          <div class="cardio-person-label">Kyong — Cardio</div>
+          <div class="cardio-checks">
+            ${checkBtn('elliptical', 'Elliptical')}
+            ${checkBtn('treadmill',  'Treadmill')}
+            ${checkBtn('stairway',   'Stairway')}
+          </div>
+        </div>
+      </div>
+      ${notesRow}
+    </div>`;
 
   // Exercise list + CTA
-  if (isRestDay) {
-    document.getElementById('h-exercises-header').style.display = 'none';
-    document.getElementById('ex-preview-list').innerHTML = `
-      <div class="rest-day-msg"><div class="rest-icon">😴</div>Rest day. You've earned it.</div>`;
-    document.getElementById('home-cta').innerHTML = '';
-  } else if (isCardioDay) {
+  if (isCardioOrRest) {
     document.getElementById('h-exercises-header').style.display = 'none';
     document.getElementById('ex-preview-list').innerHTML = '';
     document.getElementById('home-cta').innerHTML =
@@ -1090,15 +1102,26 @@ function updateLaps(delta) {
   if (el) el.textContent = S.cardio.john.laps;
 }
 
+function setSwimUnit(unit) {
+  S.cardio.john.unit = unit;
+  renderHome();
+}
+
+function toggleSwam() {
+  S.cardio.john.swam = !S.cardio.john.swam;
+  renderHome();
+}
+
 function toggleCardioActivity(act) {
   S.cardio.kyong[act] = !S.cardio.kyong[act];
   renderHome();
 }
 
 async function logCardioDay() {
+  const day = PLAN[S.dayIdx];
   const sessionData = {
     date: new Date().toISOString().split('T')[0],
-    dayNum: 6, workoutName: 'Cardio',
+    dayNum: day.dayNum, workoutName: day.name,
     duration: 60, log: {}, cardio: S.cardio,
     t: Date.now()
   };
@@ -1448,11 +1471,12 @@ function renderHistory() {
     }).join('');
     let cardioLine = '';
     if (sess.cardio) {
-      const jLaps = sess.cardio.john?.laps;
+      const j = sess.cardio.john || {};
       const ky = sess.cardio.kyong || {};
       const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1)).join(', ');
       const parts = [];
-      if (jLaps) parts.push(`🏊 ${jLaps} laps`);
+      if (j.swam && j.laps) parts.push(`🏊 ${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'}`);
+      else if (j.laps && !j.swam && j.laps !== 101) parts.push(`🏊 ${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'} (not swam)`);
       if (kyActs) parts.push(`🏃 ${kyActs}`);
       if (parts.length) cardioLine = `<div style="margin-top:6px;font-size:11px;color:var(--muted2)">${parts.join(' · ')}</div>`;
     }
@@ -1478,18 +1502,19 @@ function showSessionDetail(sessId) {
   // Cardio section
   let cardioHtml = '';
   if (sess.cardio) {
-    const jLaps = sess.cardio.john?.laps;
+    const j = sess.cardio.john || {};
     const ky = sess.cardio.kyong || {};
     const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1));
-    if (jLaps || kyActs.length) {
-      cardioHtml = `<div class="sess-ex" style="margin:14px 18px 0">
-        <div class="sess-ex-name">Cardio</div>
-        <div class="sess-persons">
-          <div><div class="sess-person-label john">John</div><div class="sess-weight">${jLaps ? jLaps + ' laps' : '—'}</div></div>
-          <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${kyActs.length ? kyActs.join(', ') : '—'}</div></div>
-        </div>
-      </div>`;
-    }
+    const swimStr = j.laps ? `${j.swam ? '✓ ' : ''}${j.laps} laps (${j.unit === 'meters' ? 'meters' : 'yards'})` : '—';
+    const noteStr = sess.cardio.notes ? `<div class="sess-note" style="margin-top:8px">${sess.cardio.notes}</div>` : '';
+    cardioHtml = `<div class="sess-ex" style="margin:14px 18px 0">
+      <div class="sess-ex-name">Cardio</div>
+      <div class="sess-persons">
+        <div><div class="sess-person-label john">John</div><div class="sess-weight">${swimStr}</div></div>
+        <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${kyActs.length ? kyActs.join(', ') : '—'}</div></div>
+      </div>
+      ${noteStr}
+    </div>`;
   }
   document.getElementById('sd-cardio').innerHTML = cardioHtml;
 
