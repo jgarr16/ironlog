@@ -1617,12 +1617,15 @@ function renderHistory() {
       const j = sess.cardio.john || {};
       const ky = sess.cardio.kyong || {};
       const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1)).join(', ');
-      const jSwim = j.swam && j.laps ? `${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'}` : j.laps ? `${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'} (skipped)` : '—';
-      cardioBlock = `
-        <div class="hist-mini-block">
-          <div class="hist-mini-person"><div class="hist-mini-label john">John</div><div class="hist-mini-val">🏊 ${jSwim}</div></div>
-          <div class="hist-mini-person"><div class="hist-mini-label kyong">Kyong</div><div class="hist-mini-val">${kyActs || '—'}</div></div>
-        </div>`;
+      const hasCardio = j.swam || kyActs.length > 0;
+      if (hasCardio) {
+        const jSwim = j.swam && j.laps ? `🏊 ${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'}` : '—';
+        cardioBlock = `
+          <div class="hist-mini-block">
+            <div class="hist-mini-person"><div class="hist-mini-label john">John</div><div class="hist-mini-val">${jSwim}</div></div>
+            <div class="hist-mini-person"><div class="hist-mini-label kyong">Kyong</div><div class="hist-mini-val">${kyActs || '—'}</div></div>
+          </div>`;
+      }
     }
     let weightBlock = '';
     const bw = S.bodyweightHistory[sess.date];
@@ -1662,24 +1665,20 @@ function showSessionDetail(sessId) {
   document.getElementById('sd-title').textContent = sess.workoutName;
   document.getElementById('sd-meta').textContent = `${fmtDate(sess.date)} · ${sess.duration ?? '?'} min`;
 
-  // Cardio section
-  let cardioHtml = '';
-  if (sess.cardio) {
-    const j = sess.cardio.john || {};
-    const ky = sess.cardio.kyong || {};
-    const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1));
-    const swimStr = j.laps ? `${j.swam ? '✓ ' : ''}${j.laps} laps (${j.unit === 'meters' ? 'meters' : 'yards'})` : '—';
-    const noteStr = sess.cardio.notes ? `<div class="sess-note" style="margin-top:8px">${sess.cardio.notes}</div>` : '';
-    cardioHtml = `<div class="sess-ex" style="margin:14px 18px 0">
-      <div class="sess-ex-name">Cardio</div>
-      <div class="sess-persons">
-        <div><div class="sess-person-label john">John</div><div class="sess-weight">${swimStr}</div></div>
-        <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${kyActs.length ? kyActs.join(', ') : '—'}</div></div>
-      </div>
-      ${noteStr}
-    </div>`;
-  }
-  document.getElementById('sd-cardio').innerHTML = cardioHtml;
+  // Cardio section — always render at top
+  const j = sess.cardio?.john || {};
+  const ky = sess.cardio?.kyong || {};
+  const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1));
+  const swimStr = j.laps ? `${j.swam ? '✓ ' : ''}${j.laps} laps (${j.unit === 'meters' ? 'meters' : 'yards'})` : '—';
+  const noteStr = sess.cardio?.notes ? `<div class="sess-note" style="margin-top:8px">${sess.cardio.notes}</div>` : '';
+  document.getElementById('sd-cardio').innerHTML = `<div class="sess-ex" style="margin:14px 18px 0">
+    <div class="sess-ex-name">Cardio</div>
+    <div class="sess-persons">
+      <div><div class="sess-person-label john">John</div><div class="sess-weight">${swimStr}</div></div>
+      <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${kyActs.length ? kyActs.join(', ') : '—'}</div></div>
+    </div>
+    ${noteStr}
+  </div>`;
 
   const exIds = Object.keys(sess.log || {});
   document.getElementById('sd-exercises').innerHTML = exIds.map(id => {
