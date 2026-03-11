@@ -133,6 +133,11 @@
     .day-pill.active .pill-n { color: #000; }
     .day-pill .pill-l { font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); display: block; margin-top: 1px; }
     .day-pill.active .pill-l { color: #0006; }
+    .day-pill.completed { border-color: #22c55e66; }
+    .day-pill.active.completed { border-color: var(--accent); }
+    .pill-check { display: none; font-size: 11px; font-weight: 700; color: #22c55e; line-height: 1; margin-top: 2px; }
+    .day-pill.completed .pill-check { display: block; }
+    .day-pill.active.completed .pill-check { color: #0008; }
 
     /* Exercise preview list */
     .ex-list { padding: 0 18px; display: flex; flex-direction: column; gap: 8px; }
@@ -834,6 +839,23 @@ function calcDayIdx() {
   return diff % 5;
 }
 
+function getCompletedDaysThisWeek() {
+  const now = new Date();
+  const dow = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  const completed = new Set();
+  S.sessions.forEach(s => {
+    const d = new Date(s.date + 'T00:00:00');
+    if (d >= monday && d <= sunday) completed.add(s.dayNum);
+  });
+  return completed;
+}
+
 // ══════════════════════════════════════════════════════════════
 // FIREBASE HELPERS
 // ══════════════════════════════════════════════════════════════
@@ -922,12 +944,17 @@ function renderHome() {
   ).join('');
 
   // Day pills
-  document.getElementById('day-pills').innerHTML = PLAN.map((d, i) => `
-    <div class="day-pill ${i === S.dayIdx ? 'active' : ''}" onclick="selectDay(${i})">
+  const completedThisWeek = getCompletedDaysThisWeek();
+  document.getElementById('day-pills').innerHTML = PLAN.map((d, i) => {
+    const isActive = i === S.dayIdx;
+    const isDone = completedThisWeek.has(d.dayNum);
+    return `
+    <div class="day-pill ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}" onclick="selectDay(${i})">
       <div class="pill-n">${d.dayNum}</div>
       <span class="pill-l">${d.name}</span>
-    </div>
-  `).join('');
+      <span class="pill-check">✓</span>
+    </div>`;
+  }).join('');
 
   // Exercise list preview (tappable)
   document.getElementById('ex-preview-list').innerHTML = day.exercises.map((ex, i) => {
