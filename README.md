@@ -10,6 +10,9 @@ A lightweight, mobile-first workout tracking app for two people training togethe
 
 - **5-day push/pull/legs program** — pre-loaded for John and Kyong with individual starting weights and rep targets
 - **Progressive overload tracking** — automatically flags weight increases when you hit the top of your rep range across all sets
+- **Exercise preview mode** — tap any exercise to view details (weights, reps, photos) without starting a workout
+- **Stepper controls** — adjust weights (+/- 5 lbs) and reps (+/- 1) with tap-friendly buttons, no keyboard needed
+- **Flexible workout navigation** — Previous/Next buttons to move between exercises, exit button to leave mid-workout
 - **Machine photos** — upload photos of your gym equipment; they display during each exercise
 - **AI Coach** — multi-turn chat with full program context and session history injected automatically
 - **Vendor-agnostic LLM** — works with Claude, ChatGPT, Gemini, or any local model (Ollama etc.)

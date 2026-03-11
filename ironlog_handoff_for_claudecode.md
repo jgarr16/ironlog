@@ -189,12 +189,13 @@ leg_press_b, ham_curl_b, calf_raise, cable_crunch
 
 ## App Screens & Navigation
 1. **Setup** — first-time Firebase + LLM credentials entry (stored in localStorage)
-2. **Home** — shows today's day in 5-day cycle, day pill selector override, exercise preview list
-3. **Active Workout** — one exercise at a time, machine photo, weight/target for John and Kyong, set-by-set logging with tap-to-check
-4. **Workout Complete** — duration, sets logged, progressions earned with next weights
-5. **History** — last 30 sessions from Firebase, reverse chronological
-6. **Coach** — multi-turn AI chat with full program context injected as system prompt
-7. **Settings** — update Firebase credentials, LLM provider/key, start date, upload machine photos
+2. **Home** — shows today's day in 5-day cycle, day pill selector override, tappable exercise preview list
+3. **Exercise Preview Modal** — tap any exercise from Home to see details (weight, reps, photo) without starting a workout
+4. **Active Workout** — one exercise at a time, machine photo, weight/target for John and Kyong with +/- stepper buttons, set-by-set logging with +/- rep steppers, Previous/Next navigation, exit button
+5. **Workout Complete** — duration, sets logged, progressions earned with next weights
+6. **History** — last 30 sessions from Firebase, reverse chronological
+7. **Coach** — multi-turn AI chat with full program context injected as system prompt
+8. **Settings** — update Firebase credentials, LLM provider/key, start date, upload machine photos
 
 Bottom navigation: Home · History · Coach · Settings (hidden during active workout)
 

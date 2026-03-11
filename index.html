@@ -175,8 +175,22 @@
     .person-label { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
     .john-card .person-label { color: var(--john); }
     .kyong-card .person-label { color: var(--kyong); }
-    .person-weight-big { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 900; line-height: 1; margin: 3px 0; }
+    .person-weight-big { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 900; line-height: 1; }
     .person-weight-big .wunit { font-size: 17px; color: var(--muted2); font-weight: 600; }
+
+    /* Weight stepper row */
+    .weight-row {
+      display: flex; align-items: center; gap: 8px; margin: 6px 0;
+    }
+    .weight-stepper {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--s3); border: 1px solid var(--border);
+      color: var(--text); font-size: 22px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.1s; user-select: none;
+    }
+    .weight-stepper:active { background: var(--accent); color: #000; transform: scale(0.95); }
+    .weight-row .person-weight-big { flex: 1; text-align: center; margin: 0; }
     .person-target { font-size: 12px; color: var(--muted2); margin-top: 1px; }
     .progress-badge {
       display: inline-flex; align-items: center; gap: 3px;
@@ -205,8 +219,9 @@
     .set-reps {
       flex: 1; background: transparent; border: none; color: var(--text);
       font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700;
-      width: 36px; text-align: center; outline: none; padding: 0;
+      width: 36px; min-width: 36px; max-width: 50px; text-align: center; outline: none; padding: 0;
     }
+    .set-reps[readonly] { pointer-events: none; }
     .set-unit { font-size: 10px; color: var(--muted); flex-shrink: 0; }
     .set-check {
       width: 30px; height: 30px; border-radius: 50%;
@@ -216,11 +231,25 @@
     }
     .set-check.checked { background: var(--success); border-color: var(--success); color: #000; }
 
+    /* Stepper buttons for reps */
+    .set-stepper {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: var(--s3); border: 1px solid var(--border);
+      color: var(--text); font-size: 20px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.1s; user-select: none;
+    }
+    .set-stepper:active { background: var(--accent); color: #000; transform: scale(0.95); }
+
     .ex-footer {
       padding: 14px; background: var(--s1);
       border-top: 1px solid var(--border);
       position: sticky; bottom: 0;
     }
+    .ex-footer-btns { display: flex; gap: 10px; }
+    .ex-footer-btns .btn { margin: 0; width: auto; }
+    .ex-footer-btns #next-btn { flex: 1; }
+    .ex-footer-btns #prev-btn { flex: 0 0 auto; }
 
     /* ─── COMPLETE SCREEN ─── */
     .complete-hero { text-align: center; padding: 48px 20px 28px; }
@@ -321,6 +350,57 @@
     .spinner { width: 22px; height: 22px; border: 3px solid var(--s3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spacer { height: 28px; }
+
+    /* ─── EXERCISE PREVIEW MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 16px; width: 100%; max-width: 400px;
+      max-height: 90vh; overflow-y: auto; position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--s3); border: 1px solid var(--border);
+      color: var(--text); font-size: 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .modal-close:active { opacity: 0.7; }
+    .modal-img-box {
+      height: 180px; background: var(--s2);
+      border-radius: 16px 16px 0 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-body { padding: 18px; }
+    .modal-ex-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 32px; font-weight: 900; text-transform: uppercase; line-height: 1.1;
+    }
+    .modal-ex-equip { font-size: 13px; color: var(--muted2); margin-top: 4px; margin-bottom: 16px; }
+    .modal-persons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-person {
+      border: 2px solid var(--border); border-radius: 12px;
+      padding: 12px; background: var(--s1);
+    }
+    .modal-person.john-card { border-color: var(--john); background: var(--john-low); }
+    .modal-person.kyong-card { border-color: var(--kyong); background: var(--kyong-low); }
+    .modal-alt {
+      margin-top: 14px; padding: 12px; background: var(--s2);
+      border-radius: 8px; font-size: 12px; color: var(--muted2);
+      line-height: 1.5; white-space: pre-line;
+    }
+    .modal-alt:empty { display: none; }
+
+    /* Make exercise previews tappable */
+    .ex-preview { cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .ex-preview:active { background: var(--s2); border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -400,6 +480,11 @@
 
   <!-- ══════════ ACTIVE EXERCISE SCREEN ══════════ -->
   <div id="screen-exercise" class="screen">
+    <div class="app-header">
+      <button class="icon-btn" onclick="exitWorkout()">←</button>
+      <div class="logo">IronLog</div>
+      <div class="header-label" id="ex-header-label">Workout</div>
+    </div>
     <div class="ex-header">
       <div class="ex-progress-bar"><div class="ex-progress-fill" id="ex-progbar"></div></div>
       <div class="ex-counter" id="ex-counter">Exercise 1 of 4</div>
@@ -418,13 +503,21 @@
     <div class="persons-grid">
       <div class="person-card john-card">
         <div class="person-label">John</div>
-        <div class="person-weight-big" id="j-weight">120<span class="wunit">lb</span></div>
+        <div class="weight-row" id="j-weight-row">
+          <button class="weight-stepper" onclick="stepWeight('john',-5)">−</button>
+          <div class="person-weight-big" id="j-weight">120<span class="wunit">lb</span></div>
+          <button class="weight-stepper" onclick="stepWeight('john',5)">+</button>
+        </div>
         <div class="person-target" id="j-target">3 × 6–10 reps</div>
         <div class="progress-badge" id="j-badge" style="display:none">▲ Progress!</div>
       </div>
       <div class="person-card kyong-card">
         <div class="person-label">Kyong</div>
-        <div class="person-weight-big" id="k-weight">20<span class="wunit">lb</span></div>
+        <div class="weight-row" id="k-weight-row">
+          <button class="weight-stepper" onclick="stepWeight('kyong',-5)">−</button>
+          <div class="person-weight-big" id="k-weight">20<span class="wunit">lb</span></div>
+          <button class="weight-stepper" onclick="stepWeight('kyong',5)">+</button>
+        </div>
         <div class="person-target" id="k-target">3 × 8–12 reps</div>
         <div class="progress-badge" id="k-badge" style="display:none">▲ Progress!</div>
       </div>
@@ -442,7 +535,10 @@
     </div>
 
     <div class="ex-footer">
-      <button class="btn btn-primary" id="next-btn" onclick="completeExercise()">Next Exercise →</button>
+      <div class="ex-footer-btns">
+        <button class="btn btn-secondary" id="prev-btn" onclick="goToPrevExercise()" style="display:none">← Previous</button>
+        <button class="btn btn-primary" id="next-btn" onclick="completeExercise()">Next Exercise →</button>
+      </div>
     </div>
   </div>
 
@@ -536,6 +632,39 @@
       <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
       <button class="btn btn-danger" onclick="resetApp()">Reset App (keep Firebase data)</button>
       <div class="spacer"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ EXERCISE PREVIEW MODAL ══════════ -->
+  <div id="preview-modal" class="modal-overlay" style="display:none" onclick="closePreview(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closePreview()">&times;</button>
+      <div class="modal-img-box" id="pm-img-box">
+        <div class="img-placeholder" id="pm-placeholder">
+          <div class="icon">📷</div>
+          <p>No photo uploaded</p>
+        </div>
+        <img id="pm-img" src="" alt="" style="display:none" onclick="toggleImgFullscreen(this)">
+      </div>
+      <div class="modal-body">
+        <div class="modal-ex-name" id="pm-name">Chest Press</div>
+        <div class="modal-ex-equip" id="pm-equip">Machine — horizontal handles</div>
+        <div class="modal-persons">
+          <div class="modal-person john-card">
+            <div class="person-label">John</div>
+            <div class="person-weight-big" id="pm-j-weight">120<span class="wunit">lb</span></div>
+            <div class="person-target" id="pm-j-target">3 × 6–10 reps</div>
+            <div class="progress-badge" id="pm-j-badge" style="display:none">▲ Progress!</div>
+          </div>
+          <div class="modal-person kyong-card">
+            <div class="person-label">Kyong</div>
+            <div class="person-weight-big" id="pm-k-weight">20<span class="wunit">lb</span></div>
+            <div class="person-target" id="pm-k-target">3 × 8–12 reps</div>
+            <div class="progress-badge" id="pm-k-badge" style="display:none">▲ Progress!</div>
+          </div>
+        </div>
+        <div class="modal-alt" id="pm-alt"></div>
+      </div>
     </div>
   </div>
 
@@ -791,13 +920,13 @@ function renderHome() {
     </div>
   `).join('');
 
-  // Exercise list preview
+  // Exercise list preview (tappable)
   document.getElementById('ex-preview-list').innerHTML = day.exercises.map((ex, i) => {
     const jw = currentWeight(ex, 'john');
     const kw = currentWeight(ex, 'kyong');
     const wStr = ex.type === 'time' ? `${ex.john.rMin}s hold` : `${jw} / ${kw} lb`;
     return `
-      <div class="ex-preview">
+      <div class="ex-preview" onclick="showExercisePreview(${S.dayIdx}, ${i})">
         <div class="ex-preview-num">${i + 1}</div>
         <div class="ex-preview-info">
           <h3>${ex.name}</h3>
@@ -810,12 +939,114 @@ function renderHome() {
 function selectDay(i) { S.dayIdx = i; renderHome(); }
 
 // ══════════════════════════════════════════════════════════════
+// EXERCISE PREVIEW MODAL
+// ══════════════════════════════════════════════════════════════
+async function showExercisePreview(dayIdx, exIdx) {
+  const day = PLAN[dayIdx];
+  const ex = day.exercises[exIdx];
+
+  // Set name and equipment
+  document.getElementById('pm-name').textContent = ex.name;
+  document.getElementById('pm-equip').textContent = ex.equip;
+
+  // Load image
+  const imgEl = document.getElementById('pm-img');
+  const phEl = document.getElementById('pm-placeholder');
+  const url = await getImage(ex.id);
+  if (url) {
+    imgEl.src = url; imgEl.style.display = 'block'; phEl.style.display = 'none';
+  } else {
+    imgEl.style.display = 'none'; phEl.style.display = 'flex';
+  }
+
+  // Get weights and check progression
+  const lastLog = await getLastLog(ex.id);
+  const jProg = checkProgress(ex, 'john', lastLog);
+  const kProg = checkProgress(ex, 'kyong', lastLog);
+
+  let jW = currentWeight(ex, 'john');
+  let kW = currentWeight(ex, 'kyong');
+  if (jProg.shouldProgress && jProg.nextWeight) jW = jProg.nextWeight;
+  if (kProg.shouldProgress && kProg.nextWeight) kW = kProg.nextWeight;
+
+  // Render person cards
+  if (ex.type === 'time') {
+    document.getElementById('pm-j-weight').innerHTML = `${ex.john.rMin}<span class="wunit">sec</span>`;
+    document.getElementById('pm-k-weight').innerHTML = `${ex.kyong.rMin}<span class="wunit">sec</span>`;
+    document.getElementById('pm-j-target').textContent = `${ex.john.sets} sets`;
+    document.getElementById('pm-k-target').textContent = `${ex.kyong.sets} sets`;
+  } else {
+    document.getElementById('pm-j-weight').innerHTML = `${jW}<span class="wunit">lb</span>`;
+    document.getElementById('pm-k-weight').innerHTML = `${kW}<span class="wunit">lb</span>`;
+    const note = n => n?.note ? ` (${n.note})` : '';
+    document.getElementById('pm-j-target').textContent = `${ex.john.sets} × ${ex.john.rMin}–${ex.john.rMax} reps${note(ex.john)}`;
+    document.getElementById('pm-k-target').textContent = `${ex.kyong.sets} × ${ex.kyong.rMin}–${ex.kyong.rMax} reps${note(ex.kyong)}`;
+  }
+
+  // Progression badges
+  const jBadge = document.getElementById('pm-j-badge');
+  const kBadge = document.getElementById('pm-k-badge');
+  jBadge.style.display = jProg.shouldProgress ? 'inline-flex' : 'none';
+  kBadge.style.display = kProg.shouldProgress ? 'inline-flex' : 'none';
+  if (jProg.shouldProgress) jBadge.textContent = `▲ ${jProg.note}`;
+  if (kProg.shouldProgress) kBadge.textContent = `▲ ${kProg.note}`;
+
+  // Alternative exercise note
+  document.getElementById('pm-alt').textContent = ex.altNote || '';
+
+  // Show modal
+  document.getElementById('preview-modal').style.display = 'flex';
+}
+
+function closePreview(event) {
+  // If called from overlay click, only close if clicking the overlay itself
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('preview-modal').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
 // WORKOUT FLOW
 // ══════════════════════════════════════════════════════════════
 function startWorkout() {
   S.workout = { active: true, exercises: PLAN[S.dayIdx].exercises, exIdx: 0, log: {}, startTime: Date.now() };
   showScreen('exercise');
   renderExercise();
+}
+
+function exitWorkout() {
+  // Check if any sets have been logged
+  const hasLogged = Object.values(S.workout.log).some(ex =>
+    (ex.john?.sets?.some(Boolean)) || (ex.kyong?.sets?.some(Boolean))
+  );
+
+  if (hasLogged) {
+    if (!confirm('You have logged sets. Exit without saving this workout?')) return;
+  }
+
+  // Reset workout state and go home
+  S.workout = { active: false, exercises: [], exIdx: 0, log: {}, startTime: null };
+  showScreen('home');
+  renderHome();
+}
+
+function stepWeight(person, delta) {
+  const { exercises, exIdx } = S.workout;
+  const ex = exercises[exIdx];
+  const exId = ex.id;
+
+  // Get current weight from log
+  const currentW = S.workout.log[exId]?.[person]?.weight || 0;
+  const newWeight = Math.max(0, currentW + delta);
+
+  // Update the log
+  if (!S.workout.log[exId]) {
+    S.workout.log[exId] = { john: { weight: 0, sets: [] }, kyong: { weight: 0, sets: [] } };
+  }
+  S.workout.log[exId][person].weight = newWeight;
+
+  // Update the display
+  const el = document.getElementById(person === 'john' ? 'j-weight' : 'k-weight');
+  el.innerHTML = `${newWeight}<span class="wunit">lb</span>`;
 }
 
 async function renderExercise() {
@@ -829,6 +1060,7 @@ async function renderExercise() {
   document.getElementById('ex-name').textContent = ex.name;
   document.getElementById('ex-equip').textContent = ex.equip + (ex.altNote ? ' · ' + ex.altNote.split('\n')[0] : '');
   document.getElementById('next-btn').textContent = exIdx === total - 1 ? 'Finish Workout ✓' : 'Next Exercise →';
+  document.getElementById('prev-btn').style.display = exIdx > 0 ? 'block' : 'none';
 
   // Machine image
   const imgEl = document.getElementById('machine-img');
@@ -848,14 +1080,25 @@ async function renderExercise() {
   if (kProg.shouldProgress && kProg.nextWeight) kW = kProg.nextWeight;
 
   // Person cards
+  const jWeightEl = document.getElementById('j-weight');
+  const kWeightEl = document.getElementById('k-weight');
+  const jWeightRow = document.getElementById('j-weight-row');
+  const kWeightRow = document.getElementById('k-weight-row');
+
   if (ex.type === 'time') {
-    document.getElementById('j-weight').innerHTML = `${ex.john.rMin}<span class="wunit">sec</span>`;
-    document.getElementById('k-weight').innerHTML = `${ex.kyong.rMin}<span class="wunit">sec</span>`;
+    // For timed exercises, hide steppers and show time
+    jWeightEl.innerHTML = `${ex.john.rMin}<span class="wunit">sec</span>`;
+    kWeightEl.innerHTML = `${ex.kyong.rMin}<span class="wunit">sec</span>`;
+    jWeightRow.querySelectorAll('.weight-stepper').forEach(b => b.style.display = 'none');
+    kWeightRow.querySelectorAll('.weight-stepper').forEach(b => b.style.display = 'none');
     document.getElementById('j-target').textContent = `${ex.john.sets} sets`;
     document.getElementById('k-target').textContent = `${ex.kyong.sets} sets`;
   } else {
-    document.getElementById('j-weight').innerHTML = `${jW}<span class="wunit">lb</span>`;
-    document.getElementById('k-weight').innerHTML = `${kW}<span class="wunit">lb</span>`;
+    // For weight exercises, show steppers
+    jWeightEl.innerHTML = `${jW}<span class="wunit">lb</span>`;
+    kWeightEl.innerHTML = `${kW}<span class="wunit">lb</span>`;
+    jWeightRow.querySelectorAll('.weight-stepper').forEach(b => b.style.display = 'flex');
+    kWeightRow.querySelectorAll('.weight-stepper').forEach(b => b.style.display = 'flex');
     const note = n => n?.note ? ` (${n.note})` : '';
     document.getElementById('j-target').textContent = `${ex.john.sets} × ${ex.john.rMin}–${ex.john.rMax} reps${note(ex.john)}`;
     document.getElementById('k-target').textContent = `${ex.kyong.sets} × ${ex.kyong.rMin}–${ex.kyong.rMax} reps${note(ex.kyong)}`;
@@ -868,10 +1111,10 @@ async function renderExercise() {
   if (jProg.shouldProgress) jBadge.textContent = `▲ ${jProg.note}`;
   if (kProg.shouldProgress) kBadge.textContent = `▲ ${kProg.note}`;
 
-  // Set loggers
+  // Set loggers — default to 10 reps for easy adjustment
   const unit = ex.type === 'time' ? 'sec' : 'reps';
-  const jDef = ex.type === 'time' ? ex.john.rMin : Math.round((ex.john.rMin + ex.john.rMax) / 2);
-  const kDef = ex.type === 'time' ? ex.kyong.rMin : Math.round((ex.kyong.rMin + ex.kyong.rMax) / 2);
+  const jDef = ex.type === 'time' ? ex.john.rMin : 10;
+  const kDef = ex.type === 'time' ? ex.kyong.rMin : 10;
   buildSets('john-sets', 'j', ex.john.sets, jDef, unit, ex.id);
   buildSets('kyong-sets', 'k', ex.kyong.sets, kDef, unit, ex.id);
 
@@ -883,13 +1126,15 @@ async function renderExercise() {
 function buildSets(containerId, prefix, numSets, defaultReps, unit, exId) {
   const el = document.getElementById(containerId);
   el.innerHTML = '';
+  const isTime = unit === 'sec';
   for (let i = 0; i < numSets; i++) {
     const row = document.createElement('div');
     row.className = 'set-row'; row.id = `row-${prefix}-${i}`;
     row.innerHTML = `
       <span class="set-num">${i+1}</span>
-      <input class="set-reps" type="number" value="${defaultReps}" min="0" max="999" id="r-${prefix}-${i}">
-      <span class="set-unit">${unit}</span>
+      ${isTime ? '' : `<button class="set-stepper" onclick="stepReps('${prefix}',${i},-1)">−</button>`}
+      <input class="set-reps" type="number" value="${defaultReps}" min="0" max="999" id="r-${prefix}-${i}" ${isTime ? '' : 'readonly'}>
+      ${isTime ? `<span class="set-unit">${unit}</span>` : `<button class="set-stepper" onclick="stepReps('${prefix}',${i},1)">+</button>`}
       <button class="set-check" id="c-${prefix}-${i}" onclick="toggleSet('${prefix}',${i},'${exId}')">✓</button>
     `;
     el.appendChild(row);
@@ -908,6 +1153,13 @@ function toggleSet(prefix, i, exId) {
   S.workout.log[exId][person].sets[i] = done ? reps : null;
 }
 
+function stepReps(prefix, i, delta) {
+  const el = document.getElementById(`r-${prefix}-${i}`);
+  const current = parseInt(el.value) || 0;
+  const newVal = Math.max(0, current + delta);
+  el.value = newVal;
+}
+
 async function completeExercise() {
   const { exercises, exIdx, log } = S.workout;
   const ex = exercises[exIdx];
@@ -923,6 +1175,13 @@ async function completeExercise() {
     renderExercise();
   } else {
     await finishWorkout();
+  }
+}
+
+function goToPrevExercise() {
+  if (S.workout.exIdx > 0) {
+    S.workout.exIdx--;
+    renderExercise();
   }
 }
 
