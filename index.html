@@ -250,6 +250,14 @@
     .ex-footer-btns .btn { margin: 0; width: auto; }
     .ex-footer-btns #next-btn { flex: 1; }
     .ex-footer-btns #prev-btn { flex: 0 0 auto; }
+    .ex-notes { margin-top: 10px; }
+    .notes-input {
+      width: 100%; background: var(--s2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 10px 12px;
+      font-size: 13px; font-family: 'Barlow', sans-serif; outline: none;
+    }
+    .notes-input:focus { border-color: var(--accent); }
+    .notes-input::placeholder { color: var(--muted); }
 
     /* ─── COMPLETE SCREEN ─── */
     .complete-hero { text-align: center; padding: 48px 20px 28px; }
@@ -538,6 +546,9 @@
       <div class="ex-footer-btns">
         <button class="btn btn-secondary" id="prev-btn" onclick="goToPrevExercise()" style="display:none">← Previous</button>
         <button class="btn btn-primary" id="next-btn" onclick="completeExercise()">Next Exercise →</button>
+      </div>
+      <div class="ex-notes">
+        <input type="text" id="ex-notes-input" class="notes-input" placeholder="Add a note (optional)..." onchange="saveNote()">
       </div>
     </div>
   </div>
@@ -1118,8 +1129,17 @@ async function renderExercise() {
   buildSets('john-sets', 'j', ex.john.sets, jDef, unit, ex.id);
   buildSets('kyong-sets', 'k', ex.kyong.sets, kDef, unit, ex.id);
 
-  // Init log entry
-  S.workout.log[ex.id] = { john: { weight: jW, sets: [] }, kyong: { weight: kW, sets: [] } };
+  // Init log entry (preserve existing notes if navigating back)
+  const existingLog = S.workout.log[ex.id];
+  S.workout.log[ex.id] = {
+    john: { weight: jW, sets: existingLog?.john?.sets || [] },
+    kyong: { weight: kW, sets: existingLog?.kyong?.sets || [] },
+    notes: existingLog?.notes || null
+  };
+
+  // Load existing note into input
+  document.getElementById('ex-notes-input').value = existingLog?.notes || '';
+
   window.scrollTo(0,0);
 }
 
@@ -1183,6 +1203,17 @@ function goToPrevExercise() {
     S.workout.exIdx--;
     renderExercise();
   }
+}
+
+function saveNote() {
+  const { exercises, exIdx } = S.workout;
+  const ex = exercises[exIdx];
+  const note = document.getElementById('ex-notes-input').value.trim();
+
+  if (!S.workout.log[ex.id]) {
+    S.workout.log[ex.id] = { john: { weight: 0, sets: [] }, kyong: { weight: 0, sets: [] } };
+  }
+  S.workout.log[ex.id].notes = note || null;
 }
 
 async function finishWorkout() {
