@@ -122,20 +122,21 @@
     .cycle-dot.today { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
     /* Day pills */
-    .day-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px 18px; }
+    .day-pills { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 14px 18px; }
     .day-pill {
-      padding: 9px 4px; background: var(--s2); border: 1px solid var(--border);
+      padding: 7px 2px; background: var(--s2); border: 1px solid var(--border);
       border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.15s;
     }
     .day-pill:active { transform: scale(0.96); }
     .day-pill.active { background: var(--accent); border-color: var(--accent); }
-    .day-pill .pill-n { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; color: var(--text); }
+    .day-pill.rest-day { opacity: 0.45; }
+    .day-pill .pill-n { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; color: var(--text); }
     .day-pill.active .pill-n { color: #000; }
-    .day-pill .pill-l { font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); display: block; margin-top: 1px; }
+    .day-pill .pill-l { font-size: 8px; text-transform: uppercase; letter-spacing: 0.2px; color: var(--muted); display: block; margin-top: 1px; }
     .day-pill.active .pill-l { color: #0006; }
     .day-pill.completed { border-color: #22c55e66; }
     .day-pill.active.completed { border-color: var(--accent); }
-    .pill-check { display: none; font-size: 11px; font-weight: 700; color: #22c55e; line-height: 1; margin-top: 2px; }
+    .pill-check { display: none; font-size: 10px; font-weight: 700; color: #22c55e; line-height: 1; margin-top: 2px; }
     .day-pill.completed .pill-check { display: block; }
     .day-pill.active.completed .pill-check { color: #0008; }
 
@@ -151,6 +152,30 @@
     .ex-preview-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
     .home-cta { padding: 16px 18px 28px; }
+
+    /* ─── CARDIO CARD ─── */
+    .cardio-card { margin: 0 18px 8px; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .cardio-header { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--s2); border-bottom: 1px solid var(--border); }
+    .cardio-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-low); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 900; color: var(--accent); flex-shrink: 0; }
+    .cardio-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cardio-body { display: grid; grid-template-columns: 1fr 1fr; }
+    .cardio-person { padding: 10px 12px; }
+    .cardio-person:first-child { border-right: 1px solid var(--border); }
+    .cardio-person-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .cardio-person.john-side .cardio-person-label { color: var(--john); }
+    .cardio-person.kyong-side .cardio-person-label { color: var(--kyong); }
+    .cardio-laps-row { display: flex; align-items: center; gap: 6px; }
+    .cardio-laps-btn { width: 30px; height: 30px; border-radius: 6px; background: var(--s3); border: 1px solid var(--border); color: var(--text); font-size: 18px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .cardio-laps-btn:active { opacity: 0.7; }
+    .cardio-laps-val { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; min-width: 36px; text-align: center; }
+    .cardio-laps-unit { font-size: 10px; color: var(--muted); }
+    .cardio-checks { display: flex; flex-direction: column; gap: 5px; }
+    .cardio-check-btn { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: var(--muted2); user-select: none; }
+    .cardio-check-btn.checked { color: var(--text); }
+    .cardio-check-box { width: 20px; height: 20px; border-radius: 4px; border: 2px solid var(--border); background: var(--s2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; transition: all 0.15s; }
+    .cardio-check-btn.checked .cardio-check-box { background: #22c55e; border-color: #22c55e; color: #000; }
+    .rest-day-msg { padding: 32px 18px; text-align: center; color: var(--muted); font-size: 15px; }
+    .rest-day-msg .rest-icon { font-size: 40px; margin-bottom: 10px; }
 
     /* ─── ACTIVE EXERCISE ─── */
     .ex-header { background: var(--s1); padding: 16px 18px 18px; border-bottom: 1px solid var(--border); }
@@ -496,13 +521,12 @@
 
     <div class="day-pills" id="day-pills"></div>
 
-    <div style="padding: 14px 18px 8px">
+    <div id="cardio-section"></div>
+    <div id="h-exercises-header" style="padding: 14px 18px 8px">
       <div class="section-label">Today's Exercises</div>
     </div>
     <div class="ex-list" id="ex-preview-list"></div>
-    <div class="home-cta">
-      <button class="btn btn-primary" onclick="startWorkout()">Start Workout →</button>
-    </div>
+    <div class="home-cta" id="home-cta"></div>
   </div>
 
   <!-- ══════════ ACTIVE EXERCISE SCREEN ══════════ -->
@@ -706,6 +730,7 @@
         <div class="sess-title" id="sd-title"></div>
         <div class="sess-meta" id="sd-meta"></div>
       </div>
+      <div id="sd-cardio"></div>
       <div class="sess-exercises" id="sd-exercises"></div>
     </div>
   </div>
@@ -799,7 +824,9 @@ const PLAN = [
       { id:"cable_crunch",  name:"Cable Crunch",          equip:"Cable",                   muscle:"Core",         type:"upper",
         john:{ weight:135, sets:3, rMin:10, rMax:10 }, kyong:{ weight:50, sets:3, rMin:10, rMax:10 } }
     ]
-  }
+  },
+  { dayNum: 6, name: "Cardio", focus: "Swimming · Cardio", exercises: [] },
+  { dayNum: 7, name: "Rest",   focus: "Recovery Day",      exercises: [] }
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -813,7 +840,8 @@ const S = {
   workout: { active: false, exercises: [], exIdx: 0, log: {}, startTime: null },
   weights: {}, // { exerciseId: { john: N, kyong: N } }
   sessions: [],
-  coachMsgs: []
+  coachMsgs: [],
+  cardio: { john: { laps: 101 }, kyong: { elliptical: false, treadmill: false, stairway: false } }
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -864,7 +892,7 @@ function calcDayIdx() {
   const start = new Date(S.cfg.startDate + 'T00:00:00');
   const now = new Date(); now.setHours(0,0,0,0);
   const diff = Math.max(0, Math.floor((now - start) / 86400000));
-  return diff % 5;
+  return diff % 7;
 }
 
 function getCompletedDaysThisWeek() {
@@ -976,31 +1004,108 @@ function renderHome() {
   document.getElementById('day-pills').innerHTML = PLAN.map((d, i) => {
     const isActive = i === S.dayIdx;
     const isDone = completedThisWeek.has(d.dayNum);
+    const isRest = d.dayNum === 7;
     return `
-    <div class="day-pill ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}" onclick="selectDay(${i})">
+    <div class="day-pill ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''} ${isRest ? 'rest-day' : ''}" onclick="selectDay(${i})">
       <div class="pill-n">${d.dayNum}</div>
       <span class="pill-l">${d.name}</span>
       <span class="pill-check">✓</span>
     </div>`;
   }).join('');
 
-  // Exercise list preview (tappable)
-  document.getElementById('ex-preview-list').innerHTML = day.exercises.map((ex, i) => {
-    const jw = currentWeight(ex, 'john');
-    const kw = currentWeight(ex, 'kyong');
-    const wStr = ex.type === 'time' ? `${ex.john.rMin}s hold` : `${jw} / ${kw} lb`;
-    return `
-      <div class="ex-preview" onclick="showExercisePreview(${S.dayIdx}, ${i})">
-        <div class="ex-preview-num">${i + 1}</div>
-        <div class="ex-preview-info">
-          <h3>${ex.name}</h3>
-          <p>${ex.muscle} · ${wStr}</p>
+  const isRestDay   = day.dayNum === 7;
+  const isCardioDay = day.dayNum === 6;
+
+  // Cardio card (shown on all days except rest)
+  if (isRestDay) {
+    document.getElementById('cardio-section').innerHTML = '';
+  } else {
+    const c = S.cardio;
+    const checkBtn = (act, label) => {
+      const on = c.kyong[act];
+      return `<div class="cardio-check-btn ${on ? 'checked' : ''}" onclick="toggleCardioActivity('${act}')">
+        <div class="cardio-check-box">${on ? '✓' : ''}</div>${label}</div>`;
+    };
+    document.getElementById('cardio-section').innerHTML = `
+      <div class="cardio-card">
+        <div class="cardio-header"><div class="cardio-num">0</div><div class="cardio-title">Cardio</div></div>
+        <div class="cardio-body">
+          <div class="cardio-person john-side">
+            <div class="cardio-person-label">John — Swimming</div>
+            <div class="cardio-laps-row">
+              <button class="cardio-laps-btn" onclick="updateLaps(-1)">−</button>
+              <span class="cardio-laps-val" id="cardio-laps-val">${c.john.laps}</span>
+              <span class="cardio-laps-unit">laps</span>
+              <button class="cardio-laps-btn" onclick="updateLaps(1)">+</button>
+            </div>
+          </div>
+          <div class="cardio-person kyong-side">
+            <div class="cardio-person-label">Kyong — Cardio</div>
+            <div class="cardio-checks">
+              ${checkBtn('elliptical', 'Elliptical')}
+              ${checkBtn('treadmill',  'Treadmill')}
+              ${checkBtn('stairway',   'Stairway')}
+            </div>
+          </div>
         </div>
       </div>`;
-  }).join('');
+  }
+
+  // Exercise list + CTA
+  if (isRestDay) {
+    document.getElementById('h-exercises-header').style.display = 'none';
+    document.getElementById('ex-preview-list').innerHTML = `
+      <div class="rest-day-msg"><div class="rest-icon">😴</div>Rest day. You've earned it.</div>`;
+    document.getElementById('home-cta').innerHTML = '';
+  } else if (isCardioDay) {
+    document.getElementById('h-exercises-header').style.display = 'none';
+    document.getElementById('ex-preview-list').innerHTML = '';
+    document.getElementById('home-cta').innerHTML =
+      `<button class="btn btn-primary" onclick="logCardioDay()">Log Cardio →</button>`;
+  } else {
+    document.getElementById('h-exercises-header').style.display = '';
+    document.getElementById('ex-preview-list').innerHTML = day.exercises.map((ex, i) => {
+      const jw = currentWeight(ex, 'john');
+      const kw = currentWeight(ex, 'kyong');
+      const wStr = ex.type === 'time' ? `${ex.john.rMin}s hold` : `${jw} / ${kw} lb`;
+      return `
+        <div class="ex-preview" onclick="showExercisePreview(${S.dayIdx}, ${i})">
+          <div class="ex-preview-num">${i + 1}</div>
+          <div class="ex-preview-info">
+            <h3>${ex.name}</h3>
+            <p>${ex.muscle} · ${wStr}</p>
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('home-cta').innerHTML =
+      `<button class="btn btn-primary" onclick="startWorkout()">Start Workout →</button>`;
+  }
 }
 
 function selectDay(i) { S.dayIdx = i; renderHome(); }
+
+function updateLaps(delta) {
+  S.cardio.john.laps = Math.max(1, S.cardio.john.laps + delta);
+  const el = document.getElementById('cardio-laps-val');
+  if (el) el.textContent = S.cardio.john.laps;
+}
+
+function toggleCardioActivity(act) {
+  S.cardio.kyong[act] = !S.cardio.kyong[act];
+  renderHome();
+}
+
+async function logCardioDay() {
+  const sessionData = {
+    date: new Date().toISOString().split('T')[0],
+    dayNum: 6, workoutName: 'Cardio',
+    duration: 60, log: {}, cardio: S.cardio,
+    t: Date.now()
+  };
+  await pushSession(sessionData);
+  await fetchSessions();
+  renderHome();
+}
 
 // ══════════════════════════════════════════════════════════════
 // EXERCISE PREVIEW MODAL
@@ -1275,7 +1380,7 @@ async function finishWorkout() {
   const sessionData = {
     date: new Date().toISOString().split('T')[0],
     dayNum: day.dayNum, workoutName: day.name,
-    duration: dur, log: S.workout.log
+    duration: dur, log: S.workout.log, cardio: S.cardio
   };
   await pushSession(sessionData);
   await fetchSessions();
@@ -1341,6 +1446,16 @@ function renderHistory() {
       const ex = PLAN.flatMap(d=>d.exercises).find(e=>e.id===id);
       return ex ? `<span class="tag">${ex.name}</span>` : '';
     }).join('');
+    let cardioLine = '';
+    if (sess.cardio) {
+      const jLaps = sess.cardio.john?.laps;
+      const ky = sess.cardio.kyong || {};
+      const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1)).join(', ');
+      const parts = [];
+      if (jLaps) parts.push(`🏊 ${jLaps} laps`);
+      if (kyActs) parts.push(`🏃 ${kyActs}`);
+      if (parts.length) cardioLine = `<div style="margin-top:6px;font-size:11px;color:var(--muted2)">${parts.join(' · ')}</div>`;
+    }
     return `
       <div class="history-item" onclick="showSessionDetail('${sess.id}')">
         <div class="history-top">
@@ -1348,6 +1463,7 @@ function renderHistory() {
           <div class="history-badge">${sess.duration ?? '?'} min</div>
         </div>
         <div class="history-tags">${tags}</div>
+        ${cardioLine}
       </div>`;
   }).join('');
 }
@@ -1358,6 +1474,24 @@ function showSessionDetail(sessId) {
 
   document.getElementById('sd-title').textContent = sess.workoutName;
   document.getElementById('sd-meta').textContent = `${fmtDate(sess.date)} · ${sess.duration ?? '?'} min`;
+
+  // Cardio section
+  let cardioHtml = '';
+  if (sess.cardio) {
+    const jLaps = sess.cardio.john?.laps;
+    const ky = sess.cardio.kyong || {};
+    const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1));
+    if (jLaps || kyActs.length) {
+      cardioHtml = `<div class="sess-ex" style="margin:14px 18px 0">
+        <div class="sess-ex-name">Cardio</div>
+        <div class="sess-persons">
+          <div><div class="sess-person-label john">John</div><div class="sess-weight">${jLaps ? jLaps + ' laps' : '—'}</div></div>
+          <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${kyActs.length ? kyActs.join(', ') : '—'}</div></div>
+        </div>
+      </div>`;
+    }
+  }
+  document.getElementById('sd-cardio').innerHTML = cardioHtml;
 
   const exIds = Object.keys(sess.log || {});
   document.getElementById('sd-exercises').innerHTML = exIds.map(id => {
