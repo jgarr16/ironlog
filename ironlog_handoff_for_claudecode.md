@@ -224,12 +224,14 @@ Bottom navigation: Home · History · Coach · Settings (hidden during active wo
 ---
 
 ## Known Issues / Next Steps
-1. **Security** — Firebase rules need auth gating (highest priority before sharing app with anyone)
-2. **Test mode** — add a toggle that writes to `/test/` path prefix in Firebase so dummy data can be tested without polluting real session history
-3. **Progressive overload evolution** — around week 4–5, AI coach should proactively suggest new exercises to add to the rotation based on session history
-4. **Image optimization** — iPhone photos are 3–5 MB; consider compressing before upload to Firebase Storage to reduce bandwidth
-5. **Offline support** — app currently requires internet; could add Firebase offline persistence for gym use in poor signal areas
-6. **Export** — add ability to export session history as CSV or JSON for external analysis
+1. **Day completion indicators** — show checkmark or visual indicator on day pills (1-5) when that day's workout has been completed this week
+2. **History detail view** — tap a history item to see full breakdown: weights, reps, sets, notes for each exercise
+3. **Security** — Firebase rules need auth gating (highest priority before sharing app with anyone)
+4. **Test mode** — add a toggle that writes to `/test/` path prefix in Firebase so dummy data can be tested without polluting real session history
+5. **Progressive overload evolution** — around week 4–5, AI coach should proactively suggest new exercises to add to the rotation based on session history
+6. **Image optimization** — iPhone photos are 3–5 MB; consider compressing before upload to Firebase Storage to reduce bandwidth
+7. **Offline support** — app currently requires internet; could add Firebase offline persistence for gym use in poor signal areas
+8. **Export** — add ability to export session history as CSV or JSON for external analysis
 
 ---
 
