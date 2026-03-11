@@ -14,6 +14,11 @@ A lightweight, mobile-first workout tracking app for two people training togethe
 - **Stepper controls** — adjust weights (+/- 5 lbs) and reps (+/- 1) with tap-friendly buttons, no keyboard needed
 - **Flexible workout navigation** — Previous/Next buttons to move between exercises, exit button to leave mid-workout
 - **Machine photos** — upload photos of your gym equipment; they display during each exercise
+- **Cardio tracking** — 7-day cycle with a dedicated cardio card; John logs swim laps (yards/meters toggle + "did swim" checkbox), Kyong logs elliptical/treadmill/stairway; shared notes field; Day 7 is cardio-only
+- **Daily body weight tracking** — morning and post-workout weight for each person, seeded from the previous day's values
+- **Exercise notes** — optional per-exercise notes field logged with each session
+- **Day completion indicators** — day pills on the home screen show a checkmark when that day's workout has been completed this week
+- **Session history detail** — tap any history entry to see the full breakdown: sets, reps, weights, cardio, and body weight for that session
 - **AI Coach** — multi-turn chat with full program context and session history injected automatically
 - **Vendor-agnostic LLM** — works with Claude, ChatGPT, Gemini, or any local model (Ollama etc.)
 - **Session history** — every workout logged to Firebase, never drifts or guesses
@@ -101,14 +106,24 @@ Firebase Realtime Database
 ├── sessions/
 │   └── {pushId}/
 │       ├── date: "YYYY-MM-DD"
-│       ├── dayNum: 1–5
+│       ├── dayNum: 1–7
 │       ├── workoutName: "Push A"
 │       ├── duration: 45
 │       ├── t: 1772496000000  (Unix ms timestamp — for sorting)
-│       └── log/
-│           └── {exerciseId}/
-│               ├── john: { weight: 120, sets: [10, 10, 9] }
-│               └── kyong: { weight: 20, sets: [10, 10, 10] }
+│       ├── log/
+│       │   └── {exerciseId}/
+│       │       ├── john: { weight: 120, sets: [10, 10, 9], notes: "" }
+│       │       └── kyong: { weight: 20, sets: [10, 10, 10], notes: "" }
+│       └── cardio/
+│           ├── john: { laps: 101, unit: "yards", swam: true }
+│           ├── kyong: { elliptical: true, treadmill: false, stairway: false }
+│           └── notes: ""
+│
+├── bodyweight/
+│   └── {YYYY-MM-DD}/
+│       ├── john: { morning: 185, post: 183, unit: "lbs" }
+│       ├── kyong: { morning: 130, post: 129, unit: "lbs" }
+│       └── t: 1772496000000
 │
 ├── progress/
 │   └── {exerciseId}/
@@ -186,6 +201,11 @@ Firebase Storage
 - [ ] Firebase offline persistence for poor gym signal
 - [ ] AI-driven program evolution at weeks 4–5 (new exercise suggestions)
 - [ ] CSV/JSON export of session history
+- [x] Day completion indicators on home screen
+- [x] History detail view (tap to see full session breakdown)
+- [x] Cardio tracking (swim laps + Kyong's cardio modes + notes)
+- [x] Daily body weight tracking (morning + post-workout)
+- [x] Optional per-exercise notes
 
 ---
 

@@ -34,14 +34,23 @@ I am building **IronLog**, a workout tracking web application for two users (Joh
 ```
 /sessions/{pushId}
   date: "YYYY-MM-DD"
-  dayNum: 1-5
+  dayNum: 1-7
   workoutName: "Push A"
   duration: 45  (minutes)
   t: 1772496000000  (Unix timestamp ms — used for sorting)
   log:
     {exerciseId}:
-      john: { weight: 120, sets: [10, 10, 9] }
-      kyong: { weight: 20, sets: [10, 10, 10] }
+      john: { weight: 120, sets: [10, 10, 9], notes: "" }
+      kyong: { weight: 20, sets: [10, 10, 10], notes: "" }
+  cardio:
+    john: { laps: 101, unit: "yards", swam: true }
+    kyong: { elliptical: true, treadmill: false, stairway: false }
+    notes: ""
+
+/bodyweight/{YYYY-MM-DD}
+  john: { morning: 185, post: 183, unit: "lbs" }
+  kyong: { morning: 130, post: 129, unit: "lbs" }
+  t: 1772496000000
 
 /progress/{exerciseId}/{person}
   w: 120  (current working weight in lbs)
@@ -189,28 +198,34 @@ leg_press_b, ham_curl_b, calf_raise, cable_crunch
 
 ## App Screens & Navigation
 1. **Setup** — first-time Firebase + LLM credentials entry (stored in localStorage)
-2. **Home** — shows today's day in 5-day cycle, day pill selector override, tappable exercise preview list
+2. **Home** — shows today's day in 7-day cycle (Days 1–5 = lifting, Days 6–7 = cardio/rest), day pill selector override with completion checkmarks, tappable exercise preview list, cardio card, body weight card
 3. **Exercise Preview Modal** — tap any exercise from Home to see details (weight, reps, photo) without starting a workout
-4. **Active Workout** — one exercise at a time, machine photo, weight/target for John and Kyong with +/- stepper buttons, set-by-set logging with +/- rep steppers, Previous/Next navigation, exit button
+4. **Active Workout** — one exercise at a time, machine photo, weight/target for John and Kyong with +/- stepper buttons, set-by-set logging with +/- rep steppers, optional notes field per exercise, Previous/Next navigation, exit button; cardio card and body weight card appear at the bottom
 5. **Workout Complete** — duration, sets logged, progressions earned with next weights
-6. **History** — last 30 sessions from Firebase, reverse chronological
-7. **Coach** — multi-turn AI chat with full program context injected as system prompt
-8. **Settings** — update Firebase credentials, LLM provider/key, start date, upload machine photos
+6. **History** — last 30 sessions from Firebase, reverse chronological, with cardio and body weight mini-blocks per entry; tap any entry for full session detail
+7. **Session Detail Modal** — full breakdown of a history entry: sets/reps/weights per exercise, notes, cardio log, body weight
+8. **Coach** — multi-turn AI chat with full program context injected as system prompt
+9. **Settings** — update Firebase credentials, LLM provider/key, start date, upload machine photos
 
 Bottom navigation: Home · History · Coach · Settings (hidden during active workout)
 
 ---
 
-## Cardio Context (not tracked in app, for AI coach awareness)
-- John: swims 1 hour before lifting
-- Kyong: elliptical / treadmill / stair climber before lifting
-- Schedule: Tuesday through Saturday
+## Cardio Tracking
+Cardio is now tracked in the app (not just AI coach context). The cardio card appears on the Home screen and Active Workout screen:
+- **John:** swim lap counter with yards/meters toggle + "Did swim today" checkbox (pre-fills last session's unit preference)
+- **Kyong:** checkboxes for elliptical, treadmill, stairway
+- **Notes:** shared text field for both users
+- **Day 7:** cardio-only day in the 7-day cycle — lifting cards are hidden, only cardio and body weight are shown
+- Cardio data is saved with the session under `sessions/{pushId}/cardio`
 
 ---
 
 ## Weekly Schedule
 - **Program start date:** March 3, 2026 (Tuesday)
-- Day index auto-calculated from start date using `(daysSinceStart % 5)`
+- Day index auto-calculated from start date using `(daysSinceStart % 7)`
+- Days 1–5: lifting days (Push A, Lower A, Pull A, Push B, Lower B)
+- Days 6–7: cardio/rest — no lifting cards shown, only cardio and body weight
 - User can override day manually via day pill selector on Home screen
 
 ---
@@ -224,14 +239,19 @@ Bottom navigation: Home · History · Coach · Settings (hidden during active wo
 ---
 
 ## Known Issues / Next Steps
-1. **Day completion indicators** — show checkmark or visual indicator on day pills (1-5) when that day's workout has been completed this week
-2. **History detail view** — tap a history item to see full breakdown: weights, reps, sets, notes for each exercise
-3. **Security** — Firebase rules need auth gating (highest priority before sharing app with anyone)
-4. **Test mode** — add a toggle that writes to `/test/` path prefix in Firebase so dummy data can be tested without polluting real session history
-5. **Progressive overload evolution** — around week 4–5, AI coach should proactively suggest new exercises to add to the rotation based on session history
-6. **Image optimization** — iPhone photos are 3–5 MB; consider compressing before upload to Firebase Storage to reduce bandwidth
-7. **Offline support** — app currently requires internet; could add Firebase offline persistence for gym use in poor signal areas
-8. **Export** — add ability to export session history as CSV or JSON for external analysis
+1. **Security** — Firebase rules need auth gating (highest priority before sharing app with anyone)
+2. **Test mode** — add a toggle that writes to `/test/` path prefix in Firebase so dummy data can be tested without polluting real session history
+3. **Progressive overload evolution** — around week 4–5, AI coach should proactively suggest new exercises to add to the rotation based on session history
+4. **Image optimization** — iPhone photos are 3–5 MB; consider compressing before upload to Firebase Storage to reduce bandwidth
+5. **Offline support** — app currently requires internet; could add Firebase offline persistence for gym use in poor signal areas
+6. **Export** — add ability to export session history as CSV or JSON for external analysis
+
+### Completed
+- [x] Day completion indicators — checkmarks on day pills (1–7) when workout is done for that day
+- [x] History detail view — tap any history item for full session breakdown (sets, reps, weights, cardio, body weight)
+- [x] Cardio tracking — 7-day cycle with swim laps, Kyong's cardio modes, notes
+- [x] Daily body weight tracking — morning and post-workout weights, seeded from yesterday
+- [x] Optional per-exercise notes field
 
 ---
 
