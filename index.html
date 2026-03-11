@@ -338,6 +338,13 @@
     .history-badge { background: var(--s3); padding: 4px 9px; border-radius: 4px; font-size: 12px; color: var(--muted); white-space: nowrap; }
     .history-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
     .tag { display: inline-block; background: var(--accent-low); color: var(--accent); border: 1px solid #f9731633; border-radius: 4px; font-size: 11px; font-weight: 600; padding: 2px 7px; }
+    .hist-mini-block { display: flex; gap: 0; background: var(--s2); border-radius: 6px; margin-top: 8px; overflow: hidden; }
+    .hist-mini-person { flex: 1; padding: 6px 9px; }
+    .hist-mini-person:first-child { border-right: 1px solid var(--border); }
+    .hist-mini-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+    .hist-mini-label.john { color: var(--john); }
+    .hist-mini-label.kyong { color: var(--kyong); }
+    .hist-mini-val { font-size: 11px; color: var(--text); line-height: 1.4; }
 
     /* ─── SESSION DETAIL MODAL ─── */
     .sess-header { padding: 18px 18px 14px; border-bottom: 1px solid var(--border); }
@@ -759,6 +766,7 @@
       </div>
       <div id="sd-cardio"></div>
       <div class="sess-exercises" id="sd-exercises"></div>
+      <div id="sd-weight"></div>
     </div>
   </div>
 
@@ -869,7 +877,8 @@ const S = {
   sessions: [],
   coachMsgs: [],
   cardio: { john: { laps: 101, unit: 'yards', swam: false }, kyong: { elliptical: false, treadmill: false, stairway: false }, notes: '' },
-  bodyweight: { john: { morning: null, post: null, unit: 'lbs' }, kyong: { morning: null, post: null, unit: 'lbs' } }
+  bodyweight: { john: { morning: null, post: null, unit: 'lbs' }, kyong: { morning: null, post: null, unit: 'lbs' } },
+  bodyweightHistory: {}
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -1240,8 +1249,9 @@ async function fetchBodyweight() {
   if (!S.db) return;
   const today = new Date().toISOString().split('T')[0];
   try {
-    const snap = await S.db.ref('bodyweight').orderByKey().limitToLast(3).once('value');
+    const snap = await S.db.ref('bodyweight').orderByKey().limitToLast(30).once('value');
     const data = snap.val() || {};
+    S.bodyweightHistory = data;
     const todayData = data[today];
     const past = Object.entries(data).filter(([d]) => d !== today).sort((a,b) => b[0].localeCompare(a[0]))[0];
     const pastData = past?.[1];
@@ -1602,16 +1612,35 @@ function renderHistory() {
       const ex = PLAN.flatMap(d=>d.exercises).find(e=>e.id===id);
       return ex ? `<span class="tag">${ex.name}</span>` : '';
     }).join('');
-    let cardioLine = '';
+    let cardioBlock = '';
     if (sess.cardio) {
       const j = sess.cardio.john || {};
       const ky = sess.cardio.kyong || {};
       const kyActs = ['elliptical','treadmill','stairway'].filter(a => ky[a]).map(a => a.charAt(0).toUpperCase()+a.slice(1)).join(', ');
-      const parts = [];
-      if (j.swam && j.laps) parts.push(`🏊 ${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'}`);
-      else if (j.laps && !j.swam && j.laps !== 101) parts.push(`🏊 ${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'} (not swam)`);
-      if (kyActs) parts.push(`🏃 ${kyActs}`);
-      if (parts.length) cardioLine = `<div style="margin-top:6px;font-size:11px;color:var(--muted2)">${parts.join(' · ')}</div>`;
+      const jSwim = j.swam && j.laps ? `${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'}` : j.laps ? `${j.laps} ${j.unit === 'meters' ? 'mtr' : 'yds'} (skipped)` : '—';
+      cardioBlock = `
+        <div class="hist-mini-block">
+          <div class="hist-mini-person"><div class="hist-mini-label john">John</div><div class="hist-mini-val">🏊 ${jSwim}</div></div>
+          <div class="hist-mini-person"><div class="hist-mini-label kyong">Kyong</div><div class="hist-mini-val">${kyActs || '—'}</div></div>
+        </div>`;
+    }
+    let weightBlock = '';
+    const bw = S.bodyweightHistory[sess.date];
+    if (bw) {
+      const fmtW = (p) => {
+        const d = bw[p]; if (!d) return '—';
+        const u = d.unit === 'kg' ? 'kg' : 'lbs';
+        if (d.morning && d.post) return `${d.morning} → ${d.post} ${u}`;
+        if (d.morning) return `${d.morning} ${u} (am)`;
+        return '—';
+      };
+      if (bw.john?.morning || bw.kyong?.morning) {
+        weightBlock = `
+          <div class="hist-mini-block">
+            <div class="hist-mini-person"><div class="hist-mini-label john">John</div><div class="hist-mini-val">⚖ ${fmtW('john')}</div></div>
+            <div class="hist-mini-person"><div class="hist-mini-label kyong">Kyong</div><div class="hist-mini-val">⚖ ${fmtW('kyong')}</div></div>
+          </div>`;
+      }
     }
     return `
       <div class="history-item" onclick="showSessionDetail('${sess.id}')">
@@ -1620,7 +1649,8 @@ function renderHistory() {
           <div class="history-badge">${sess.duration ?? '?'} min</div>
         </div>
         <div class="history-tags">${tags}</div>
-        ${cardioLine}
+        ${cardioBlock}
+        ${weightBlock}
       </div>`;
   }).join('');
 }
@@ -1681,6 +1711,29 @@ function showSessionDetail(sessId) {
         ${noteHtml}
       </div>`;
   }).join('');
+
+  // Weight section
+  let weightHtml = '';
+  const bw = S.bodyweightHistory[sess.date];
+  if (bw) {
+    const fmtW = (p) => {
+      const d = bw[p]; if (!d) return '—';
+      const u = d.unit === 'kg' ? 'kg' : 'lbs';
+      if (d.morning != null && d.post != null) return `${d.morning} → ${d.post} ${u}`;
+      if (d.morning != null) return `${d.morning} ${u} (am only)`;
+      return '—';
+    };
+    if (bw.john?.morning != null || bw.kyong?.morning != null) {
+      weightHtml = `<div class="sess-ex" style="margin:0 18px 20px">
+        <div class="sess-ex-name">Body Weight</div>
+        <div class="sess-persons">
+          <div><div class="sess-person-label john">John</div><div class="sess-weight">${fmtW('john')}</div></div>
+          <div><div class="sess-person-label kyong">Kyong</div><div class="sess-weight">${fmtW('kyong')}</div></div>
+        </div>
+      </div>`;
+    }
+  }
+  document.getElementById('sd-weight').innerHTML = weightHtml;
 
   document.getElementById('session-modal').style.display = 'flex';
 }
