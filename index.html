@@ -184,8 +184,11 @@
 
     /* ─── BODY WEIGHT CARD ─── */
     .weight-card { margin: 0 18px 8px; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .weight-header { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--s2); border-bottom: 1px solid var(--border); }
+    .weight-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; background: var(--s2); border-bottom: 1px solid var(--border); }
     .weight-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .weight-saved { font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
+    .weight-saved.show { opacity: 1; }
+    .weight-date { font-size: 11px; color: var(--muted); }
     .weight-body { display: grid; grid-template-columns: 1fr 1fr; }
     .weight-person { padding: 10px 12px; }
     .weight-person:first-child { border-right: 1px solid var(--border); }
@@ -1211,9 +1214,14 @@ function renderWeightCard() {
       </div>`;
   };
 
+  const todayLabel = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   el.innerHTML = `
     <div class="weight-card">
-      <div class="weight-header"><div class="weight-title">⚖ Body Weight</div></div>
+      <div class="weight-header">
+        <div class="weight-title">⚖ Body Weight</div>
+        <span class="weight-date">Today · ${todayLabel}</span>
+        <span class="weight-saved" id="weight-saved-indicator">Saved ✓</span>
+      </div>
       <div class="weight-body">
         ${personSection('john')}
         ${personSection('kyong')}
@@ -1242,6 +1250,11 @@ async function saveBodyweightToFirebase() {
   const today = new Date().toISOString().split('T')[0];
   try {
     await S.db.ref(`bodyweight/${today}`).set({ john: S.bodyweight.john, kyong: S.bodyweight.kyong, t: Date.now() });
+    const ind = document.getElementById('weight-saved-indicator');
+    if (ind) {
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1500);
+    }
   } catch(e) {}
 }
 
@@ -1261,14 +1274,20 @@ async function fetchBodyweight() {
     if (todayData?.kyong) Object.assign(S.bodyweight.kyong, todayData.kyong);
 
     // For fields still null today, seed from yesterday's same field
+    let seeded = false;
     if (pastData) {
       ['john','kyong'].forEach(p => {
         const src = pastData[p];
         if (!src) return;
         if (!todayData?.[p]?.unit && src.unit) S.bodyweight[p].unit = src.unit;
-        if (S.bodyweight[p].morning == null && src.morning != null) S.bodyweight[p].morning = src.morning;
-        if (S.bodyweight[p].post == null && src.post != null) S.bodyweight[p].post = src.post;
+        if (S.bodyweight[p].morning == null && src.morning != null) { S.bodyweight[p].morning = src.morning; seeded = true; }
+        if (S.bodyweight[p].post == null && src.post != null) { S.bodyweight[p].post = src.post; seeded = true; }
       });
+    }
+    // Commit seeded values to today's date so history records them even if user makes no changes
+    if (seeded && !todayData) {
+      await S.db.ref(`bodyweight/${today}`).set({ john: S.bodyweight.john, kyong: S.bodyweight.kyong, t: Date.now() });
+      S.bodyweightHistory[today] = { john: S.bodyweight.john, kyong: S.bodyweight.kyong };
     }
   } catch(e) {}
 }
