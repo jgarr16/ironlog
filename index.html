@@ -453,7 +453,7 @@ function defaultWeights() {
 function defaultDayState() {
   return {
     cardio: {
-      john:  { swam: false, laps: 101 },
+      john:  { weight: 195, swam: false, laps: 101 },
       kyong: { treadmill: false, stairway: false }
     },
     assistDone: { pullups: false, dips: false },
@@ -490,6 +490,7 @@ function loadState() {
         const d = s.currentWeek.days[n];
         if (!d.assistDone) d.assistDone = { pullups: false, dips: false };
         if (!d.cardio.john.laps && d.cardio.john.laps !== 0) d.cardio.john.laps = 101;
+        if (d.cardio.john.weight === undefined) d.cardio.john.weight = 195;
         if (d.cardio.kyong.treadmill === undefined) d.cardio.kyong.treadmill = false;
         if (d.cardio.kyong.stairway  === undefined) d.cardio.kyong.stairway  = false;
       }
@@ -712,6 +713,28 @@ function buildDayPanel(dayNum) {
   panel.appendChild(dayHeader);
 
   // ── Cardio + Pull-ups & Dips (appended to topBody built above) ─────────────
+
+  // Weight card (standalone, above cardio)
+  const weightCard = document.createElement('div');
+  weightCard.className = 'cardio-card';
+  const weightRow = document.createElement('div');
+  weightRow.className = 'cardio-row';
+  const weightTag = document.createElement('div');
+  weightTag.className = 'person-tag tag-john';
+  weightTag.textContent = 'JOHN';
+  const weightChecks = document.createElement('div');
+  weightChecks.className = 'cardio-checks';
+  const weightStepper = buildStepper(
+    dayState.cardio.john.weight,
+    v => { dayState.cardio.john.weight = v; saveState(); },
+    { min: 0, step: 1 }
+  );
+  weightChecks.appendChild(weightStepper);
+  weightChecks.insertAdjacentHTML('beforeend', '<span class="laps-unit">lbs</span>');
+  weightRow.appendChild(weightTag);
+  weightRow.appendChild(weightChecks);
+  weightCard.appendChild(weightRow);
+  topBody.appendChild(weightCard);
 
   // Cardio card
   const cardioCard = document.createElement('div');
