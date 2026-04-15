@@ -1,142 +1,44 @@
-# IronLog 🏋️
+# IronLog
 
-A lightweight, mobile-first workout tracking app for two people training together. Built as a single HTML file, hosted on GitHub Pages, with Firebase for data persistence and a pluggable AI coaching layer.
+A lightweight, mobile-first workout tracker for two people training together. Single HTML file, no build tools, no backend — all state in `localStorage`.
 
 **Live app:** [jgarr16.github.io/ironlog](https://jgarr16.github.io/ironlog/)
 
 ---
 
-## Features
+## Architecture
 
-- **5-day push/pull/legs program** — pre-loaded for John and Kyong with individual starting weights and rep targets
-- **Progressive overload tracking** — automatically flags weight increases when you hit the top of your rep range across all sets
-- **Exercise preview mode** — tap any exercise to view details (weights, reps, photos) without starting a workout
-- **Stepper controls** — adjust weights (+/- 5 lbs) and reps (+/- 1) with tap-friendly buttons, no keyboard needed
-- **Flexible workout navigation** — Previous/Next buttons to move between exercises, exit button to leave mid-workout
-- **Machine photos** — upload photos of your gym equipment; they display during each exercise
-- **Cardio tracking** — 7-day cycle with a dedicated cardio card; John logs swim laps (yards/meters toggle + "did swim" checkbox), Kyong logs elliptical/treadmill/stairway; shared notes field; Day 7 is cardio-only
-- **Daily body weight tracking** — morning and post-workout weight for each person, seeded from the previous day's values
-- **Exercise notes** — optional per-exercise notes field logged with each session
-- **Day completion indicators** — day pills on the home screen show a checkmark when that day's workout has been completed this week
-- **Session history detail** — tap any history entry to see the full breakdown: sets, reps, weights, cardio, and body weight for that session
-- **AI Coach** — multi-turn chat with full program context and session history injected automatically
-- **Vendor-agnostic LLM** — works with Claude, ChatGPT, Gemini, or any local model (Ollama etc.)
-- **Session history** — every workout logged to Firebase, never drifts or guesses
-- **Mobile-first** — designed for iPhone use at the gym
-
----
-
-## Tech Stack
+No Firebase. No npm. No frameworks. One file.
 
 | Layer | Technology |
 |---|---|
 | Frontend | Vanilla HTML/CSS/JS — single `index.html` |
 | Hosting | GitHub Pages |
-| Database | Firebase Realtime Database |
-| File Storage | Firebase Storage (machine photos) |
-| AI | Anthropic / OpenAI / Google / Custom API |
-
-No build tools. No npm. No frameworks. Just one file.
+| Storage | Browser `localStorage` (all data stays on device) |
+| PWA | `manifest.json` with portrait orientation lock |
 
 ---
 
-## Getting Started
+## Features
 
-### 1. Fork or clone this repo
-```bash
-git clone https://github.com/jgarr16/ironlog.git
-```
+### Layout
+- **5-day tab layout** — Day 1 through Day 5, plus a Notes tab
+- **Header** — "IRONLOG" left, "Week of [date]" right
+- **PWA-ready** — installable on iOS/Android, portrait lock via manifest
 
-### 2. Set up Firebase
-1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable **Realtime Database** and **Storage**
-3. Grab your project credentials from Project Settings → General → Web App
+### Each Day Tab
+- **Collapsible top section** containing:
+  - John's daily weight stepper
+  - Cardio card: John (swim laps + unit toggle + did-swim checkbox) and Kyong (treadmill / stairway checkboxes)
+  - Pull-ups and dips checkboxes for John
+- **Weights grid** below — all exercises displayed at once, transposed layout with John | Kyong columns
+- **Auto-✓ on tab** when all exercises for that day are checked — no lock button needed
+- **Editable weights** — tap to adjust; machine image URL supported per exercise
 
-### 3. Deploy to GitHub Pages
-- Push `index.html` to your repo
-- Go to **Settings → Pages → Branch: main** → Save
-
-### 4. Configure the app
-Open the live URL, and on first load you'll see a setup screen. Enter:
-- Firebase API Key, Project ID, Database URL, Storage Bucket
-- Your LLM provider and API key (Claude, OpenAI, Gemini, or custom)
-- Your program start date
-
-All credentials are stored in your browser's `localStorage` — nothing is hardcoded in the source.
-
----
-
-## Firebase Security Rules
-
-### Realtime Database
-The app requires an index on the `t` field for session sorting. Add this to your rules:
-
-```json
-{
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
-    "sessions": {
-      ".indexOn": ["t"]
-    }
-  }
-}
-```
-
-> ⚠️ During initial setup, you may use time-based or open rules temporarily. Lock these down with `auth != null` before sharing the app with anyone.
-
-### Storage
-```
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /machines/{imageId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
-
----
-
-## Data Structure
-
-```
-Firebase Realtime Database
-│
-├── sessions/
-│   └── {pushId}/
-│       ├── date: "YYYY-MM-DD"
-│       ├── dayNum: 1–7
-│       ├── workoutName: "Push A"
-│       ├── duration: 45
-│       ├── t: 1772496000000  (Unix ms timestamp — for sorting)
-│       ├── log/
-│       │   └── {exerciseId}/
-│       │       ├── john: { weight: 120, sets: [10, 10, 9], notes: "" }
-│       │       └── kyong: { weight: 20, sets: [10, 10, 10], notes: "" }
-│       └── cardio/
-│           ├── john: { laps: 101, unit: "yards", swam: true }
-│           ├── kyong: { elliptical: true, treadmill: false, stairway: false }
-│           └── notes: ""
-│
-├── bodyweight/
-│   └── {YYYY-MM-DD}/
-│       ├── john: { morning: 185, post: 183, unit: "lbs" }
-│       ├── kyong: { morning: 130, post: 129, unit: "lbs" }
-│       └── t: 1772496000000
-│
-├── progress/
-│   └── {exerciseId}/
-│       ├── john: { w: 125, t: 1772496000000 }
-│       └── kyong: { w: 25, t: 1772496000000 }
-│
-└── imgs/
-    └── {exerciseId}: "https://firebasestorage.googleapis.com/..."
-
-Firebase Storage
-└── machines/
-    └── {exerciseId}  (JPEG or PNG)
-```
+### Notes Tab
+- Weekly notes field
+- Full session history — tap any entry to expand details
+- **Start New Week** button — auto-downloads cumulative `ironlog-history.json` before resetting
 
 ---
 
@@ -184,34 +86,20 @@ Firebase Storage
 
 ---
 
-## Progression Rules
+## Data
 
-- **Upper body:** hit top of rep range all 3 sets → **+5 lbs** next session
-- **Lower body:** hit top of rep range all 3 sets → **+10 lbs** next session
-- **Timed holds:** hit max time all 3 sets → **+5 sec** next session
-- Below minimum → maintain current weight
+All data lives in `localStorage`. No sync, no cloud, no accounts.
 
----
-
-## Roadmap
-
-- [ ] Firebase Authentication (lock down security rules)
-- [ ] Test mode (write to `/test/` path prefix, delete without affecting real data)
-- [ ] Image compression before upload
-- [ ] Firebase offline persistence for poor gym signal
-- [ ] AI-driven program evolution at weeks 4–5 (new exercise suggestions)
-- [ ] CSV/JSON export of session history
-- [x] Day completion indicators on home screen
-- [x] History detail view (tap to see full session breakdown)
-- [x] Cardio tracking (swim laps + Kyong's cardio modes + notes)
-- [x] Daily body weight tracking (morning + post-workout)
-- [x] Optional per-exercise notes
+On **Start New Week**, the app exports a cumulative `ironlog-history.json` to your Downloads folder before clearing the current week. Keep that file — it's your only backup.
 
 ---
 
-## Importing Historical Data
+## Getting Started
 
-Sessions can be bulk-imported via Firebase Console → Realtime Database → Import JSON. See the data structure above for the required format.
+1. Fork or clone this repo
+2. Push `index.html` and `manifest.json` to your repo
+3. Enable GitHub Pages (Settings → Pages → Branch: main)
+4. Open the live URL — no setup screen, no credentials needed
 
 ---
 
