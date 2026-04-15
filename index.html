@@ -6,6 +6,7 @@
   <title>IronLog</title>
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -43,9 +44,13 @@
 
     /* ── Header ─────────────────────────────────────── */
     .header {
-      padding: 14px 16px 10px;
+      padding: 12px 16px 10px;
       background: var(--s1);
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
     }
     .header-title {
       font-family: 'Barlow Condensed', sans-serif;
@@ -54,12 +59,13 @@
       letter-spacing: 2px;
       color: var(--accent);
       line-height: 1;
+      flex-shrink: 0;
     }
     .header-week {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 2px;
       letter-spacing: 0.5px;
+      text-align: right;
     }
 
     /* ── Tab bar ─────────────────────────────────────── */
@@ -99,10 +105,14 @@
     .panel { padding: 14px 14px 32px; }
 
     /* ── Day header ──────────────────────────────────── */
-    .day-header { margin-bottom: 14px; }
-    .day-num  { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
-    .day-name { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; line-height: 1.1; }
-    .day-focus { font-size: 13px; color: var(--muted2); margin-top: 1px; }
+    .day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .day-focus { font-size: 13px; color: var(--muted2); }
+    .day-header .section-chevron { font-size: 14px; padding: 4px 0 4px 12px; cursor: pointer; }
 
     /* ── Section label ───────────────────────────────── */
     .section-label {
@@ -114,15 +124,6 @@
       text-transform: uppercase;
       margin-bottom: 8px;
     }
-    .section-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      user-select: none;
-      margin-bottom: 8px;
-    }
-    .section-toggle .section-label { margin-bottom: 0; }
     .section-chevron {
       font-size: 11px;
       color: var(--muted);
@@ -130,8 +131,15 @@
       line-height: 1;
     }
     .section-chevron.collapsed { transform: rotate(-90deg); }
-    .section-body { overflow: hidden; }
     .section-body.collapsed { display: none; }
+    .caret-toggle {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 0 6px;
+    }
 
     /* ── Cardio card ─────────────────────────────────── */
     .cardio-card {
@@ -688,101 +696,103 @@ function buildDayPanel(dayNum) {
   const panel = document.createElement('div');
   panel.className = 'panel';
 
-  panel.insertAdjacentHTML('beforeend', `
-    <div class="day-header">
-      <div class="day-focus">${day.focus}</div>
+  // Build top section body + chevron first so we can wire the toggle into the header
+  const topBody = document.createElement('div');
+  topBody.className = 'section-body' + (isCollapsed(dayNum, 'top') ? ' collapsed' : '');
+
+  const topChevron = document.createElement('span');
+  topChevron.className = 'section-chevron' + (isCollapsed(dayNum, 'top') ? ' collapsed' : '');
+  topChevron.textContent = '▾';
+  topChevron.addEventListener('click', () => toggleSection(dayNum, 'top', topBody, topChevron));
+
+  const dayHeader = document.createElement('div');
+  dayHeader.className = 'day-header';
+  dayHeader.insertAdjacentHTML('beforeend', `<div class="day-focus">${day.focus}</div>`);
+  dayHeader.appendChild(topChevron);
+  panel.appendChild(dayHeader);
+
+  // ── Cardio + Pull-ups & Dips (appended to topBody built above) ─────────────
+
+  // Cardio card
+  const cardioCard = document.createElement('div');
+  cardioCard.className = 'cardio-card';
+
+  const johnRow = document.createElement('div');
+  johnRow.className = 'cardio-row';
+  const johnTag = document.createElement('div');
+  johnTag.className = 'person-tag tag-john';
+  johnTag.textContent = 'JOHN';
+  const johnChecks = document.createElement('div');
+  johnChecks.className = 'cardio-checks';
+  const swimLabel = document.createElement('label');
+  swimLabel.className = 'check-pill';
+  const swimCb = document.createElement('input');
+  swimCb.type = 'checkbox';
+  swimCb.checked = dayState.cardio.john.swam;
+  swimCb.addEventListener('change', e => { dayState.cardio.john.swam = e.target.checked; saveState(); });
+  swimLabel.appendChild(swimCb);
+  swimLabel.insertAdjacentText('beforeend', ' Swam');
+  johnChecks.appendChild(swimLabel);
+  const lapStepper = buildStepper(
+    dayState.cardio.john.laps,
+    v => { dayState.cardio.john.laps = v; saveState(); },
+    { min: 0, step: 1 }
+  );
+  johnChecks.appendChild(lapStepper);
+  johnChecks.insertAdjacentHTML('beforeend', '<span class="laps-unit">laps</span>');
+  johnRow.appendChild(johnTag);
+  johnRow.appendChild(johnChecks);
+  cardioCard.appendChild(johnRow);
+
+  const kyongRow = document.createElement('div');
+  kyongRow.className = 'cardio-row';
+  kyongRow.innerHTML = `
+    <div class="person-tag tag-kyong">KYONG</div>
+    <div class="cardio-checks">
+      <label class="check-pill">
+        <input type="checkbox" data-c="kyong-treadmill" ${dayState.cardio.kyong.treadmill ? 'checked' : ''}>
+        Treadmill
+      </label>
+      <label class="check-pill">
+        <input type="checkbox" data-c="kyong-stairway" ${dayState.cardio.kyong.stairway ? 'checked' : ''}>
+        Stairway
+      </label>
     </div>
-  `);
-
-  // ── Cardio (collapsible) ────────────────────────────
-  panel.appendChild(buildCollapsibleSection('Cardio', dayNum, 'cardio', body => {
-    const cardioCard = document.createElement('div');
-    cardioCard.className = 'cardio-card';
-
-    // John — swim + lap stepper
-    const johnRow = document.createElement('div');
-    johnRow.className = 'cardio-row';
-
-    const johnTag = document.createElement('div');
-    johnTag.className = 'person-tag tag-john';
-    johnTag.textContent = 'JOHN';
-
-    const johnChecks = document.createElement('div');
-    johnChecks.className = 'cardio-checks';
-
-    const swimLabel = document.createElement('label');
-    swimLabel.className = 'check-pill';
-    const swimCb = document.createElement('input');
-    swimCb.type = 'checkbox';
-    swimCb.checked = dayState.cardio.john.swam;
-    swimCb.addEventListener('change', e => { dayState.cardio.john.swam = e.target.checked; saveState(); });
-    swimLabel.appendChild(swimCb);
-    swimLabel.insertAdjacentText('beforeend', ' Swam');
-    johnChecks.appendChild(swimLabel);
-
-    const lapStepper = buildStepper(
-      dayState.cardio.john.laps,
-      v => { dayState.cardio.john.laps = v; saveState(); },
-      { min: 0, step: 1 }
-    );
-    johnChecks.appendChild(lapStepper);
-    johnChecks.insertAdjacentHTML('beforeend', '<span class="laps-unit">laps</span>');
-
-    johnRow.appendChild(johnTag);
-    johnRow.appendChild(johnChecks);
-    cardioCard.appendChild(johnRow);
-
-    // Kyong — treadmill + stairway
-    const kyongRow = document.createElement('div');
-    kyongRow.className = 'cardio-row';
-    kyongRow.innerHTML = `
-      <div class="person-tag tag-kyong">KYONG</div>
-      <div class="cardio-checks">
-        <label class="check-pill">
-          <input type="checkbox" data-c="kyong-treadmill" ${dayState.cardio.kyong.treadmill ? 'checked' : ''}>
-          Treadmill
-        </label>
-        <label class="check-pill">
-          <input type="checkbox" data-c="kyong-stairway" ${dayState.cardio.kyong.stairway ? 'checked' : ''}>
-          Stairway
-        </label>
-      </div>
-    `;
-    kyongRow.querySelectorAll('[data-c]').forEach(el => {
-      el.addEventListener('change', e => {
-        const k = e.target.dataset.c;
-        if      (k === 'kyong-treadmill') dayState.cardio.kyong.treadmill = e.target.checked;
-        else if (k === 'kyong-stairway')  dayState.cardio.kyong.stairway  = e.target.checked;
-        saveState();
-      });
+  `;
+  kyongRow.querySelectorAll('[data-c]').forEach(el => {
+    el.addEventListener('change', e => {
+      const k = e.target.dataset.c;
+      if      (k === 'kyong-treadmill') dayState.cardio.kyong.treadmill = e.target.checked;
+      else if (k === 'kyong-stairway')  dayState.cardio.kyong.stairway  = e.target.checked;
+      saveState();
     });
-    cardioCard.appendChild(kyongRow);
-    body.appendChild(cardioCard);
-  }));
+  });
+  cardioCard.appendChild(kyongRow);
+  topBody.appendChild(cardioCard);
 
-  // ── Pull-ups & Dips (collapsible) ───────────────────
-  panel.appendChild(buildCollapsibleSection('Pull-ups & Dips', dayNum, 'assist', body => {
-    const assistCard = document.createElement('div');
-    assistCard.className = 'assist-card';
-    [
-      { key: 'pullups', label: 'Assisted Pull-ups' },
-      { key: 'dips',    label: 'Dips'              }
-    ].forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'assist-row';
-      const lbl = document.createElement('label');
-      lbl.className = 'check-pill';
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = dayState.assistDone[item.key] || false;
-      cb.addEventListener('change', e => { dayState.assistDone[item.key] = e.target.checked; saveState(); });
-      lbl.appendChild(cb);
-      lbl.insertAdjacentText('beforeend', ' ' + item.label);
-      row.appendChild(lbl);
-      assistCard.appendChild(row);
-    });
-    body.appendChild(assistCard);
-  }));
+  // Assist card
+  const assistCard = document.createElement('div');
+  assistCard.className = 'assist-card';
+  [
+    { key: 'pullups', label: 'Assisted Pull-ups' },
+    { key: 'dips',    label: 'Dips'              }
+  ].forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'assist-row';
+    const lbl = document.createElement('label');
+    lbl.className = 'check-pill';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = dayState.assistDone[item.key] || false;
+    cb.addEventListener('change', e => { dayState.assistDone[item.key] = e.target.checked; saveState(); });
+    lbl.appendChild(cb);
+    lbl.insertAdjacentText('beforeend', ' ' + item.label);
+    row.appendChild(lbl);
+    assistCard.appendChild(row);
+  });
+  topBody.appendChild(assistCard);
+
+  panel.appendChild(topBody);
 
   // ── Weights ─────────────────────────────────────────
   panel.insertAdjacentHTML('beforeend', '<div class="section-label">Weights</div>');
