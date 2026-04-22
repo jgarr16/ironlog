@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Exercise — IronLog</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --s1: #131313;
+      --s2: #1c1c1c;
+      --border: #2e2e2e;
+      --accent: #f97316;
+      --text: #f0ede8;
+      --muted: #888;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      min-height: 100%;
+    }
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Image flush to top of the page */
+    .hero {
+      flex-shrink: 0;
+      width: 100%;
+      line-height: 0;
+      background: #0a0a0a;
+    }
+    .hero img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      object-position: top center;
+      max-height: min(52vh, 420px);
+      background: #131313;
+    }
+    .content {
+      flex: 1;
+      padding: 14px 14px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .back {
+      display: inline-block;
+      font-size: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .back:active { opacity: 0.75; }
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .table-section h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .stack-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--s2);
+    }
+    table.stack-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .stack-table th,
+    .stack-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .stack-table tr:last-child td { border-bottom: none; }
+    .stack-table th {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      background: var(--s1);
+    }
+    .stack-table td:last-child {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+    }
+    .table-status {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .footer {
+      font-size: 13px;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+    .footer a {
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .footer a:active { opacity: 0.8; }
+    .missing {
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="page">
+    <div class="hero" id="hero"></div>
+    <div class="content" id="content" hidden>
+      <div>
+        <a class="back" href="index.html">← Back to IronLog</a>
+        <h1 id="title"></h1>
+      </div>
+
+      <section class="table-section" id="tableSection" hidden>
+        <h2>Weight stack</h2>
+        <div class="stack-table-wrap" id="tableWrap"></div>
+        <p class="table-status" id="tableLoading">Loading reference…</p>
+        <p class="table-status" id="tableEmpty" hidden>No stack table for this exercise.</p>
+      </section>
+
+      <div class="footer" id="footer" hidden>
+        <span id="footerNote"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ironlog_v2';
+
+    function parsePipeTable(md) {
+      const text = String(md).replace(/^\uFEFF/, '');
+      const rows = [];
+      for (const line of text.split(/\r?\n/)) {
+        const t = line.trim();
+        if (!t.startsWith('|')) continue;
+        const parts = t.split('|');
+        const cells = [];
+        for (let i = 1; i < parts.length - 1; i++) {
+          cells.push(parts[i].trim());
+        }
+        if (cells.length === 0) continue;
+        if (cells.every(c => /^:?[\s\-:]+$/.test(c))) continue;
+        rows.push(cells);
+      }
+      return rows;
+    }
+
+    function renderStackTable(rows) {
+      if (rows.length < 2) return null;
+      const table = document.createElement('table');
+      table.className = 'stack-table';
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      rows[0].forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      for (let r = 1; r < rows.length; r++) {
+        const tr = document.createElement('tr');
+        rows[r].forEach((cell, j) => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      return table;
+    }
+
+    const params = new URLSearchParams(location.search);
+    const srcRaw = params.get('src');
+    const mdPath = (params.get('md') || '').trim();
+    const exId = params.get('id') || '';
+
+    if (!srcRaw) {
+      document.getElementById('hero').innerHTML =
+        '<p class="missing">No image selected. <a class="back" style="color: var(--accent)" href="index.html">Return to IronLog</a></p>';
+    } else {
+      const src = srcRaw;
+      const title = params.get('title') || '';
+
+      document.getElementById('title').textContent = title || 'Exercise';
+      document.title = (title || 'Exercise') + ' — IronLog';
+      document.getElementById('content').removeAttribute('hidden');
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = title || 'Exercise machine';
+      img.decoding = 'async';
+      img.addEventListener('error', () => {
+        const p = document.createElement('p');
+        p.className = 'missing';
+        p.textContent = 'Image could not be loaded.';
+        document.getElementById('hero').innerHTML = '';
+        document.getElementById('hero').appendChild(p);
+      });
+      document.getElementById('hero').appendChild(img);
+
+      const tableSection = document.getElementById('tableSection');
+      const tableWrap = document.getElementById('tableWrap');
+      const tableLoading = document.getElementById('tableLoading');
+      const tableEmpty = document.getElementById('tableEmpty');
+
+      if (mdPath) {
+        tableSection.removeAttribute('hidden');
+        const mdUrl = new URL(mdPath, window.location.href).href;
+        fetch(mdUrl, { cache: 'no-store' })
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+          })
+          .then(text => {
+            const trimmed = text.trim();
+            if (trimmed.startsWith('<!') || trimmed.toLowerCase().startsWith('<html')) {
+              throw new Error('got HTML');
+            }
+            tableLoading.hidden = true;
+            const rows = parsePipeTable(text);
+            const tbl = renderStackTable(rows);
+            if (tbl) {
+              tableWrap.appendChild(tbl);
+            } else {
+              tableEmpty.hidden = false;
+              tableEmpty.textContent = 'Stack file had no table (check markdown format).';
+            }
+          })
+          .catch(err => {
+            tableLoading.hidden = true;
+            tableEmpty.hidden = false;
+            let msg;
+            if (location.protocol === 'file:') {
+              msg = 'Stack tables don’t load when you open the app from a file on disk (browsers block that). From the ironlog folder run: python3 -m http.server 8080 — then open http://localhost:8080/ — or use the live GitHub Pages URL.';
+            } else if (err && err.message === 'got HTML') {
+              msg = 'Stack file wasn’t raw markdown (GitHub Pages: add a .nojekyll file in the repo root and redeploy).';
+            } else {
+              msg = 'Could not load stack table. ' + (err && err.message ? '(' + err.message + ')' : '');
+            }
+            tableEmpty.textContent = msg;
+          });
+      }
+
+      if (exId) {
+        document.getElementById('footer').hidden = false;
+        const note = document.getElementById('footerNote');
+        note.appendChild(document.createTextNode('Need a different photo? '));
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = 'Set custom image URL';
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            window.location.href = 'index.html';
+            return;
+          }
+          let state;
+          try {
+            state = JSON.parse(raw);
+          } catch {
+            alert('Could not read saved data.');
+            return;
+          }
+          if (!state.images || typeof state.images !== 'object') state.images = {};
+          const current = state.images[exId] || src;
+          const next = prompt('Image URL for this exercise:\n(clear to remove custom URL and use bundled photo)', current);
+          if (next === null) return;
+          const t = next.trim();
+          if (t) state.images[exId] = t;
+          else delete state.images[exId];
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          } catch (err) {
+            alert('Could not save: ' + (err && err.message ? err.message : 'storage full'));
+            return;
+          }
+          window.location.href = 'index.html';
+        });
+        note.appendChild(a);
+        note.appendChild(document.createTextNode(' — returns to the log.'));
+      }
+    }
+  </script>
+</body>
+</html>

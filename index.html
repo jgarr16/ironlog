@@ -1056,8 +1056,13 @@ function buildExerciseCard(ex, dayState) {
     thumb.className = 'ex-thumb';
     thumb.src = imgUrl;
     thumb.alt = ex.name;
-    thumb.title = 'Tap to set custom image URL';
-    thumb.addEventListener('click', () => openImageUrlPrompt());
+    thumb.title = 'View full-size image';
+    thumb.addEventListener('click', () => {
+      const q = new URLSearchParams({ src: imgUrl, title: ex.name, id: ex.id });
+      const mdPath = bundled ? bundled.replace(/\.(png|jpg|jpeg|webp)$/i, '.md') : '';
+      if (mdPath) q.set('md', mdPath);
+      window.location.href = 'exercise-view.html?' + q.toString();
+    });
     thumbCol.appendChild(thumb);
     inner.appendChild(body);
     inner.appendChild(thumbCol);
