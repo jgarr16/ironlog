@@ -57,7 +57,9 @@
     }
     .nav-row {
       width: 100%;
-      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 14px;
     }
     .back {
@@ -85,6 +87,34 @@
       width: 44px;
       height: 44px;
       display: block;
+    }
+    .exercise-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .exercise-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--s2);
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .exercise-arrow:active { opacity: 0.75; }
+    .exercise-arrow.disabled {
+      color: #6d6d6d;
+      border-color: #3a3a3a;
+      background: #171717;
+      pointer-events: none;
+      opacity: 0.7;
     }
     h1.ex-title {
       font-family: 'Barlow Condensed', sans-serif;
@@ -278,6 +308,10 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </span>
           </a>
+          <div class="exercise-nav" id="exerciseNav" hidden>
+            <a class="exercise-arrow" id="prevExercise" href="#" aria-label="Previous exercise">←</a>
+            <a class="exercise-arrow" id="nextExercise" href="#" aria-label="Next exercise">→</a>
+          </div>
         </div>
         <h1 class="ex-title" id="title"></h1>
         <p class="ex-subtitle" id="subtitle" hidden></p>
@@ -467,8 +501,44 @@
     const srcRaw = params.get('src');
     const mdPath = (params.get('md') || '').trim();
     const exId = params.get('id') || '';
+    const dayNavRaw = params.get('dayNav') || '';
+    const dayIdxRaw = params.get('dayIdx');
     const dayNum = params.get('day');
     const dayName = params.get('dayName') || '';
+    let dayNav = [];
+    let dayIdx = -1;
+    try {
+      const parsed = JSON.parse(dayNavRaw);
+      if (Array.isArray(parsed)) dayNav = parsed;
+    } catch {
+      dayNav = [];
+    }
+    if (dayIdxRaw != null) {
+      const idx = parseInt(dayIdxRaw, 10);
+      if (!isNaN(idx)) dayIdx = idx;
+    }
+    if (dayIdx < 0 && dayNav.length) {
+      dayIdx = dayNav.findIndex(item => item && item.id === exId);
+    }
+
+    function buildDayNavUrl(targetIdx) {
+      if (!Array.isArray(dayNav) || targetIdx < 0 || targetIdx >= dayNav.length) return '';
+      const target = dayNav[targetIdx];
+      if (!target || !target.id || !target.src) return '';
+      const q = new URLSearchParams({
+        src: target.src,
+        title: target.title || 'Exercise',
+        id: target.id
+      });
+      if (target.md) q.set('md', target.md);
+      if (target.johnW) q.set('johnW', target.johnW);
+      if (target.kyongW) q.set('kyongW', target.kyongW);
+      if (dayNum) q.set('day', dayNum);
+      if (dayName) q.set('dayName', dayName);
+      q.set('dayNav', JSON.stringify(dayNav));
+      q.set('dayIdx', String(targetIdx));
+      return 'exercise-view.html?' + q.toString();
+    }
 
     if (!srcRaw) {
       document.getElementById('hero').innerHTML =
@@ -480,6 +550,33 @@
       document.title = (title || 'Exercise') + ' — IronLog';
       document.getElementById('content').removeAttribute('hidden');
       document.getElementById('pageFoot').removeAttribute('hidden');
+      const navWrap = document.getElementById('exerciseNav');
+      const prevLink = document.getElementById('prevExercise');
+      const nextLink = document.getElementById('nextExercise');
+      let hasDayNav = false;
+      const prevHref = buildDayNavUrl(dayIdx - 1);
+      if (prevHref) {
+        prevLink.href = prevHref;
+        prevLink.classList.remove('disabled');
+        prevLink.removeAttribute('aria-disabled');
+        hasDayNav = true;
+      } else {
+        prevLink.href = '#';
+        prevLink.classList.add('disabled');
+        prevLink.setAttribute('aria-disabled', 'true');
+      }
+      const nextHref = buildDayNavUrl(dayIdx + 1);
+      if (nextHref) {
+        nextLink.href = nextHref;
+        nextLink.classList.remove('disabled');
+        nextLink.removeAttribute('aria-disabled');
+        hasDayNav = true;
+      } else {
+        nextLink.href = '#';
+        nextLink.classList.add('disabled');
+        nextLink.setAttribute('aria-disabled', 'true');
+      }
+      navWrap.hidden = !hasDayNav;
 
       if (dayNum && dayName) {
         const sub = document.getElementById('subtitle');

@@ -1330,11 +1330,34 @@ function buildExerciseCard(ex, dayState, dayNum) {
     thumb.alt = ex.name;
     thumb.title = 'View full-size image';
     thumb.addEventListener('click', () => {
+      const d = DAYS.find(x => x.num === dayNum);
+      const buildExerciseEntry = targetEx => {
+        const targetBundled = EXERCISE_IMAGES[targetEx.id] || '';
+        const targetBundledDark = EXERCISE_IMAGES_DARK[targetEx.id] || targetBundled;
+        const targetSrc = state.images[targetEx.id] || targetBundledDark || targetBundled;
+        const targetMdPath = targetBundled ? targetBundled.replace(/\.(png|jpg|jpeg|webp)$/i, '.md') : '';
+        let targetJohnW = '';
+        let targetKyongW = '';
+        if (!targetEx.isBodyweight) {
+          const targetStack = EXERCISE_STACK_WEIGHTS[targetEx.id];
+          const tj = (state.weights[targetEx.id] || {}).john ?? targetEx.john.weight;
+          const tk = (state.weights[targetEx.id] || {}).kyong ?? targetEx.kyong.weight;
+          targetJohnW = String(targetStack && targetStack.length ? snapToStack(tj, targetStack) : tj);
+          targetKyongW = String(targetStack && targetStack.length ? snapToStack(tk, targetStack) : tk);
+        }
+        return {
+          id: targetEx.id,
+          title: targetEx.name,
+          src: targetSrc,
+          md: targetMdPath,
+          johnW: targetJohnW,
+          kyongW: targetKyongW
+        };
+      };
       const viewSrc = state.images[ex.id] || bundledDark || bundled || imgUrl;
       const q = new URLSearchParams({ src: viewSrc, title: ex.name, id: ex.id });
       const mdPath = bundled ? bundled.replace(/\.(png|jpg|jpeg|webp)$/i, '.md') : '';
       if (mdPath) q.set('md', mdPath);
-      const d = DAYS.find(x => x.num === dayNum);
       if (dayNum != null) {
         q.set('day', String(dayNum));
         if (d) q.set('dayName', d.name);
@@ -1345,6 +1368,14 @@ function buildExerciseCard(ex, dayState, dayNum) {
         const k = stack && stack.length ? snapToStack(kyongW, stack) : kyongW;
         q.set('johnW', String(j));
         q.set('kyongW', String(k));
+      }
+      if (d && Array.isArray(d.exercises)) {
+        const i = d.exercises.findIndex(item => item.id === ex.id);
+        if (i >= 0) {
+          const nav = d.exercises.map(buildExerciseEntry);
+          q.set('dayNav', JSON.stringify(nav));
+          q.set('dayIdx', String(i));
+        }
       }
       window.location.href = 'exercise-view.html?' + q.toString();
     });
