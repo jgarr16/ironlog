@@ -829,19 +829,21 @@ function buildStepper(initialValue, onChange, { min = 0, step = 1 } = {}) {
   return wrap;
 }
 
-// ─── Collapse state (in-memory, resets on tab switch — open by default) ───────
+// ─── Collapse state (in-memory, resets on tab switch — top strip collapsed by default) ─
 
-const collapsed = {}; // { "1-cardio": false, "1-assist": false, ... }
+const collapsed = {}; // key "dayNum-section": false = expanded, true/undefined = collapsed
 
 function isCollapsed(dayNum, section) {
-  return collapsed[`${dayNum}-${section}`] === true;
+  return collapsed[`${dayNum}-${section}`] !== false;
 }
 
 function toggleSection(dayNum, section, bodyEl, chevronEl) {
   const key = `${dayNum}-${section}`;
-  collapsed[key] = !collapsed[key];
-  bodyEl.classList.toggle('collapsed', collapsed[key]);
-  chevronEl.classList.toggle('collapsed', collapsed[key]);
+  const isOpen = collapsed[key] === false;
+  collapsed[key] = isOpen ? true : false;
+  const nowCollapsed = collapsed[key] !== false;
+  bodyEl.classList.toggle('collapsed', nowCollapsed);
+  chevronEl.classList.toggle('collapsed', nowCollapsed);
 }
 
 function buildCollapsibleSection(label, dayNum, sectionKey, buildBody) {
