@@ -537,6 +537,27 @@
     .week-status-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); margin-bottom: 4px; }
     .week-status-count { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; }
     .week-status-date  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .week-review-list { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: grid; gap: 8px; }
+    .week-review-row { background: var(--s3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; }
+    .week-review-row-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--s3);
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .week-review-row-btn:active { opacity: 0.85; }
+    .week-review-row-btn:hover { border-color: #4a4a4a; background: #242424; }
+    .week-review-day { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.4px; margin-bottom: 0; white-space: nowrap; }
+    .week-review-day.complete { color: var(--success); }
+    .week-review-items { display: flex; flex-wrap: nowrap; gap: 10px; font-size: 12px; min-width: 0; overflow-x: auto; }
+    .week-review-item { color: var(--muted); }
+    .week-review-mark { font-weight: 700; margin-left: 4px; }
+    .week-review-mark.ok { color: var(--success); }
+    .week-review-mark.no { color: #ef4444; }
+    .week-review-empty { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 8px; }
 
     .notes-textarea {
       width: 100%;
@@ -839,6 +860,46 @@ function daysCompleteCount() {
   return [1,2,3,4,5].filter(n => isDayComplete(n)).length;
 }
 
+function isCardioComplete(dayNum) {
+  const d = state.currentWeek.days[dayNum];
+  return !!(d?.cardio?.john?.swam && d?.cardio?.kyong?.treadmill && d?.cardio?.kyong?.stairway);
+}
+
+function isPullupsComplete(dayNum) {
+  return !!state.currentWeek.days[dayNum]?.assistDone?.pullups;
+}
+
+function isDipsComplete(dayNum) {
+  return !!state.currentWeek.days[dayNum]?.assistDone?.dips;
+}
+
+function buildWeekReviewRowsHtml() {
+  const rows = [];
+  [1,2,3,4,5].forEach(dayNum => {
+    const cardio = isCardioComplete(dayNum);
+    const pullups = isPullupsComplete(dayNum);
+    const dips = isDipsComplete(dayNum);
+    const weights = isDayComplete(dayNum);
+    const started = cardio || pullups || dips || weights;
+    if (!started) return;
+    const allDone = cardio && pullups && dips && weights;
+    const mark = ok => `<span class="week-review-mark ${ok ? 'ok' : 'no'}">${ok ? '✓' : '✕'}</span>`;
+    rows.push(
+      `<button type="button" class="week-review-row week-review-row-btn" data-day-jump="${dayNum}">` +
+      `<div class="week-review-day${allDone ? ' complete' : ''}">Day ${dayNum}</div>` +
+      '<div class="week-review-items">' +
+      `<span class="week-review-item">Cardio ${mark(cardio)}</span>` +
+      `<span class="week-review-item">Pull-ups ${mark(pullups)}</span>` +
+      `<span class="week-review-item">Dips ${mark(dips)}</span>` +
+      `<span class="week-review-item">Weights ${mark(weights)}</span>` +
+      '</div>' +
+      '</button>'
+    );
+  });
+  if (!rows.length) return '<div class="week-review-empty">No day progress yet this week.</div>';
+  return rows.join('');
+}
+
 function esc(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -1004,7 +1065,7 @@ function renderTabs() {
 
   const notesTab = document.createElement('div');
   notesTab.className = 'tab' + (activeTab === 'notes' ? ' active' : '');
-  notesTab.textContent = 'Notes';
+  notesTab.textContent = 'Week';
   notesTab.addEventListener('click', () => { activeTab = 'notes'; render(); });
   bar.appendChild(notesTab);
 }
@@ -1401,13 +1462,23 @@ function buildNotesPanel() {
 
   panel.insertAdjacentHTML('beforeend', `
     <div class="week-status">
-      <div class="week-status-label">WEEK STATUS</div>
+      <div class="week-status-label">WEEK</div>
       <div class="week-status-count" style="color:${complete ? 'var(--success)' : 'var(--text)'}">
-        ${doneCount}/5 Days Complete${complete ? ' ✓' : ''}
+        ${doneCount}/5 Days Fully Complete${complete ? ' ✓' : ''}
       </div>
       <div class="week-status-date">Week of ${formatDate(state.currentWeek.startDate)}</div>
+      <div class="week-review-list">${buildWeekReviewRowsHtml()}</div>
     </div>
   `);
+  panel.querySelectorAll('[data-day-jump]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const day = parseInt(btn.getAttribute('data-day-jump') || '', 10);
+      if (!isNaN(day)) {
+        activeTab = day;
+        render();
+      }
+    });
+  });
 
   panel.insertAdjacentHTML('beforeend', '<div class="section-label">Weekly Feedback &amp; Weight Changes</div>');
 
