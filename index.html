@@ -366,7 +366,7 @@
       letter-spacing: 1px;
       margin-bottom: 3px;
     }
-    .weight-value-wrap { display: flex; align-items: baseline; gap: 3px; }
+    .weight-value-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .weight-value {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 26px;
@@ -377,6 +377,17 @@
       transition: border-color 0.15s;
     }
     .weight-value:hover { border-bottom-color: var(--accent); }
+    .exercise-weight-stepper .stepper-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      min-width: 42px;
+    }
+    .exercise-inner.has-ex-thumb .exercise-weight-stepper .stepper-val { font-size: 20px; }
+    .exercise-weight-stepper .stepper-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
     .weight-unit   { font-size: 12px; color: var(--muted); }
     .weight-target { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .bodyweight-value { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; }
@@ -463,18 +474,18 @@ const DAYS = [
   {
     num: 1, name: 'Push A', focus: 'Chest · Shoulders · Triceps',
     exercises: [
-      { id: 'chest_press',      name: 'Chest Press',            john: { weight: 120, sets: 3, reps: '6–10'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
+      { id: 'chest_press',      name: 'Chest Press',            john: { weight: 125, sets: 3, reps: '6–10'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
       { id: 'shoulder_press_a', name: 'Shoulder Press',         john: { weight: 50,  sets: 3, reps: '6–10'       }, kyong: { weight: 10,  sets: 3, reps: '10'        } },
-      { id: 'triceps_ext',      name: 'Triceps Extension',      john: { weight: 65,  sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '8–12'      } },
+      { id: 'triceps_ext',      name: 'Triceps Extension',      john: { weight: 60,  sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '8–12'      } },
       { id: 'pallof_a',         name: 'Pallof Press',           john: { weight: 50,  sets: 3, reps: '10–12/side' }, kyong: { weight: 20,  sets: 3, reps: '10–12/side'} },
     ]
   },
   {
     num: 2, name: 'Lower A', focus: 'Quads · Hamstrings · Glutes',
     exercises: [
-      { id: 'leg_press_a',      name: 'Leg Press',              john: { weight: 250, sets: 3, reps: '6–10'       }, kyong: { weight: 60,  sets: 3, reps: '10–12'     } },
-      { id: 'leg_curl_a',       name: 'Leg Curl',               john: { weight: 80,  sets: 3, reps: '8–12'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
-      { id: 'leg_ext_a',        name: 'Leg Extension',          john: { weight: 110, sets: 3, reps: '8–12'       }, kyong: { weight: 25,  sets: 3, reps: '8–12'      } },
+      { id: 'leg_press_a',      name: 'Leg Press',              john: { weight: 260, sets: 3, reps: '6–10'       }, kyong: { weight: 60,  sets: 3, reps: '10–12'     } },
+      { id: 'leg_curl_a',       name: 'Leg Curl',               john: { weight: 90,  sets: 3, reps: '8–12'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
+      { id: 'leg_ext_a',        name: 'Leg Extension',          john: { weight: 115, sets: 3, reps: '8–12'       }, kyong: { weight: 25,  sets: 3, reps: '8–12'      } },
       { id: 'hello_dolly_a',    name: 'Hello Dollies',          john: { weight: null, sets: 3, reps: '10'        }, kyong: { weight: null, sets: 3, reps: '10'       }, isBodyweight: true },
     ]
   },
@@ -499,9 +510,9 @@ const DAYS = [
   {
     num: 5, name: 'Lower B', focus: 'Quads · Hamstrings · Calves vol.',
     exercises: [
-      { id: 'leg_press_b',      name: 'Leg Press (vol.)',       john: { weight: 190, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
+      { id: 'leg_press_b',      name: 'Leg Press (vol.)',       john: { weight: 200, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
       { id: 'ham_curl_b',       name: 'Hamstring Curl',         john: { weight: 65,  sets: 3, reps: '10'         }, kyong: { weight: 20,  sets: 3, reps: '10'        } },
-      { id: 'calf_raise',       name: 'Calf Raise (Leg Press)', john: { weight: 150, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
+      { id: 'calf_raise',       name: 'Calf Raise (Leg Press)', john: { weight: 160, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
       { id: 'pallof_e',         name: 'Pallof Press',           john: { weight: 50,  sets: 3, reps: '10–12/side' }, kyong: { weight: 20,  sets: 3, reps: '10–12/side'} },
     ]
   }
@@ -523,6 +534,79 @@ const EXERCISE_IMAGES = {
   lat_pulldown:     'images/lat_pulldowns.png',
   ham_curl_b:       'images/hamstring_curl.png',
 };
+
+// Valid stack weights from images/*.md (Weight column). Exercises without a table are omitted.
+const STACK_VERTICAL_CHEST = [20, 35, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200, 215, 230, 245];
+const STACK_SHOULDER       = [10, 20, 30, 40, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200];
+const STACK_LAT            = [20, 30, 40, 50, 60, 75, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235, 250, 265, 280];
+const STACK_PALLOF         = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 135, 150, 165, 180, 195];
+const STACK_LEG_PRESS      = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420];
+const STACK_LEG_EXT        = [10, 25, 40, 55, 70, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235, 250, 265, 280, 295];
+const STACK_LEG_CURL       = [10, 30, 50, 70, 90, 110, 130, 150, 170, 190];
+const STACK_HAMSTRING      = [20, 35, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185];
+
+const EXERCISE_STACK_WEIGHTS = {
+  chest_press:      STACK_VERTICAL_CHEST,
+  shoulder_press_a: STACK_SHOULDER,
+  shoulder_press_b: STACK_SHOULDER,
+  triceps_ext:      STACK_LAT,
+  lat_pulldown:     STACK_LAT,
+  pallof_a:         STACK_PALLOF,
+  pallof_c:         STACK_PALLOF,
+  pallof_e:         STACK_PALLOF,
+  leg_press_a:      STACK_LEG_PRESS,
+  leg_press_b:      STACK_LEG_PRESS,
+  calf_raise:       STACK_LEG_PRESS,
+  leg_curl_a:       STACK_LEG_CURL,
+  leg_ext_a:        STACK_LEG_EXT,
+  ham_curl_b:       STACK_HAMSTRING,
+};
+
+function snapToStack(weight, stack) {
+  if (weight == null || weight === undefined || !Array.isArray(stack) || stack.length === 0) return weight;
+  const w = Number(weight);
+  if (isNaN(w) || w <= 0) return weight;
+  if (stack.includes(w)) return w;
+  let best = stack[0];
+  let bestD = Math.abs(w - best);
+  for (const v of stack) {
+    const d = Math.abs(w - v);
+    if (d < bestD || (d === bestD && v > best)) {
+      best = v;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+/** Move one step lighter (−1) or heavier (+1) along the stack; clamps at ends. */
+function stepStack(stack, current, delta) {
+  if (!stack || !stack.length) return current;
+  const w = snapToStack(current, stack);
+  const i = stack.indexOf(w);
+  const start = i >= 0 ? i : 0;
+  const j = start + delta;
+  if (j < 0) return stack[0];
+  if (j >= stack.length) return stack[stack.length - 1];
+  return stack[j];
+}
+
+function normalizeStackWeights(state) {
+  if (!state.weights) return false;
+  let changed = false;
+  DAYS.forEach(d => d.exercises.forEach(ex => {
+    if (ex.isBodyweight) return;
+    const stack = EXERCISE_STACK_WEIGHTS[ex.id];
+    if (!stack || !stack.length) return;
+    if (!state.weights[ex.id]) state.weights[ex.id] = { john: ex.john.weight, kyong: ex.kyong.weight };
+    const entry = state.weights[ex.id];
+    const j = snapToStack(entry.john, stack);
+    const k = snapToStack(entry.kyong, stack);
+    if (j !== entry.john) { entry.john = j; changed = true; }
+    if (k !== entry.kyong) { entry.kyong = k; changed = true; }
+  }));
+  return changed;
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -556,12 +640,14 @@ function defaultCurrentWeek() {
 }
 
 function buildFreshState() {
-  return {
+  const s = {
     weights: defaultWeights(),
     images:  {},
     currentWeek: defaultCurrentWeek(),
     history: []
   };
+  normalizeStackWeights(s);
+  return s;
 }
 
 function loadState() {
@@ -581,6 +667,9 @@ function loadState() {
         if (d.cardio.kyong.stairway  === undefined) d.cardio.kyong.stairway  = false;
       }
     });
+    if (normalizeStackWeights(s)) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /* ignore */ }
+    }
     return s;
   } catch {
     return buildFreshState();
@@ -1009,33 +1098,74 @@ function buildExerciseCard(ex, dayState) {
       const valueWrap = document.createElement('div');
       valueWrap.className = 'weight-value-wrap';
 
-      const valueEl = document.createElement('span');
-      valueEl.className = 'weight-value';
-      valueEl.textContent = wVal;
-      valueEl.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.className = 'weight-edit-input';
-        input.type = 'number';
-        input.inputMode = 'numeric';
-        input.value = wVal;
-        valueWrap.replaceChild(input, valueEl);
-        input.focus();
-        input.select();
-        const commit = () => {
-          const v = parseInt(input.value, 10);
-          if (!isNaN(v) && v > 0) {
-            if (!state.weights[ex.id]) state.weights[ex.id] = {};
-            state.weights[ex.id][person] = v;
-            saveState();
-          }
+      const stack = EXERCISE_STACK_WEIGHTS[ex.id];
+      if (stack && stack.length) {
+        const w = snapToStack(wVal, stack);
+        const idx = stack.indexOf(w);
+        const stepper = document.createElement('div');
+        stepper.className = 'stepper exercise-weight-stepper';
+
+        const minus = document.createElement('button');
+        minus.type = 'button';
+        minus.className = 'stepper-btn minus';
+        minus.textContent = '−';
+        minus.disabled = idx <= 0;
+
+        const valEl = document.createElement('span');
+        valEl.className = 'stepper-val';
+        valEl.textContent = w;
+
+        const plus = document.createElement('button');
+        plus.type = 'button';
+        plus.className = 'stepper-btn plus';
+        plus.textContent = '+';
+        plus.disabled = idx >= stack.length - 1;
+
+        const applyStep = delta => {
+          const cur = (state.weights[ex.id] || {})[person] ?? ex[person].weight;
+          const next = stepStack(stack, cur, delta);
+          if (!state.weights[ex.id]) state.weights[ex.id] = {};
+          state.weights[ex.id][person] = next;
+          saveState();
           render();
         };
-        input.addEventListener('blur', commit);
-        input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
-      });
+        minus.addEventListener('click', () => applyStep(-1));
+        plus.addEventListener('click', () => applyStep(1));
 
-      valueWrap.appendChild(valueEl);
-      valueWrap.insertAdjacentHTML('beforeend', '<span class="weight-unit">lb</span>');
+        stepper.appendChild(minus);
+        stepper.appendChild(valEl);
+        stepper.appendChild(plus);
+        valueWrap.appendChild(stepper);
+        valueWrap.insertAdjacentHTML('beforeend', '<span class="weight-unit">lb</span>');
+      } else {
+        const valueEl = document.createElement('span');
+        valueEl.className = 'weight-value';
+        valueEl.textContent = wVal;
+        valueEl.addEventListener('click', () => {
+          const input = document.createElement('input');
+          input.className = 'weight-edit-input';
+          input.type = 'number';
+          input.inputMode = 'numeric';
+          input.value = wVal;
+          valueWrap.replaceChild(input, valueEl);
+          input.focus();
+          input.select();
+          const commit = () => {
+            const v = parseInt(input.value, 10);
+            if (!isNaN(v) && v > 0) {
+              if (!state.weights[ex.id]) state.weights[ex.id] = {};
+              state.weights[ex.id][person] = v;
+              saveState();
+            }
+            render();
+          };
+          input.addEventListener('blur', commit);
+          input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+        });
+
+        valueWrap.appendChild(valueEl);
+        valueWrap.insertAdjacentHTML('beforeend', '<span class="weight-unit">lb</span>');
+      }
       col.appendChild(valueWrap);
 
       const target = document.createElement('div');
