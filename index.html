@@ -262,13 +262,86 @@
     .ex-check input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--success); cursor: pointer; }
     .ex-body { flex: 1; min-width: 0; }
 
-    .ex-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .ex-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      min-width: 0;
+    }
     .ex-name {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 17px;
       font-weight: 700;
       letter-spacing: 0.3px;
       flex: 1;
+      min-width: 0;
+    }
+    .ex-name-right {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .ex-thumb {
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: block;
+      background: var(--s3);
+    }
+    /* Tall image column on the right; title + weights centered in remaining space */
+    .exercise-inner.has-ex-thumb {
+      align-items: stretch;
+      gap: 12px;
+      padding: 10px 10px 10px 12px;
+    }
+    .exercise-inner.has-ex-thumb .ex-body {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-right: 2px;
+    }
+    .exercise-inner.has-ex-thumb .ex-name-row {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .exercise-inner.has-ex-thumb .ex-name {
+      text-align: center;
+      flex: none;
+    }
+    .exercise-inner.has-ex-thumb .weights-grid {
+      width: fit-content;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 0 18px;
+    }
+    .exercise-inner.has-ex-thumb .ex-check {
+      align-self: center;
+    }
+    .ex-thumb-col {
+      flex: 0 0 46%;
+      max-width: 48%;
+      min-width: 0;
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      padding: 5px;
+      box-sizing: border-box;
+      min-height: 152px;
+    }
+    .ex-thumb-col .ex-thumb {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 152px;
+      object-fit: cover;
+      object-position: center;
     }
     .img-btn {
       background: none;
@@ -283,10 +356,6 @@
       transition: border-color 0.15s, color 0.15s;
     }
     .img-btn.has-img { border-color: var(--accent); color: var(--accent); }
-
-    .ex-image-wrap { margin-bottom: 10px; display: none; }
-    .ex-image-wrap.visible { display: block; }
-    .ex-image-wrap img { width: 100%; border-radius: 6px; max-height: 140px; object-fit: cover; cursor: pointer; }
 
     /* Transposed weights grid */
     .weights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
@@ -437,6 +506,23 @@ const DAYS = [
     ]
   }
 ];
+
+// Bundled machine photos (same repo as index.html). Keys = exercise `id`. User URL in state.images[ex.id] overrides.
+const EXERCISE_IMAGES = {
+  chest_press:      'images/vertical_chest.png',
+  shoulder_press_a: 'images/shoulder_press.png',
+  shoulder_press_b: 'images/shoulder_press.png',
+  triceps_ext:      'images/lat_pulldowns.png',
+  pallof_a:         'images/pallof_press.png',
+  pallof_c:         'images/pallof_press.png',
+  pallof_e:         'images/pallof_press.png',
+  leg_press_a:      'images/leg_press.png',
+  leg_press_b:      'images/leg_press.png',
+  leg_curl_a:       'images/leg_curl.png',
+  leg_ext_a:        'images/leg_extensions.png',
+  lat_pulldown:     'images/lat_pulldowns.png',
+  ham_curl_b:       'images/hamstring_curl.png',
+};
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -833,7 +919,8 @@ function buildExerciseCard(ex, dayState) {
   const done   = dayState.done[ex.id] || false;
   const johnW  = (state.weights[ex.id] || {}).john  ?? ex.john.weight;
   const kyongW = (state.weights[ex.id] || {}).kyong ?? ex.kyong.weight;
-  const imgUrl = state.images[ex.id] || '';
+  const bundled = EXERCISE_IMAGES[ex.id] || '';
+  const imgUrl  = state.images[ex.id] || bundled;
 
   const card = document.createElement('div');
   card.className = 'exercise-card' + (done ? ' done' : '');
@@ -860,38 +947,43 @@ function buildExerciseCard(ex, dayState) {
   const body = document.createElement('div');
   body.className = 'ex-body';
 
-  // Name + image button
-  const nameRow = document.createElement('div');
-  nameRow.className = 'ex-name-row';
-  nameRow.innerHTML = `<div class="ex-name">${esc(ex.name)}</div>`;
-
-  const imgBtn = document.createElement('button');
-  imgBtn.className = 'img-btn' + (imgUrl ? ' has-img' : '');
-  imgBtn.type = 'button';
-  imgBtn.textContent = imgUrl ? '📷' : 'img';
-  imgBtn.title = imgUrl ? 'View / change image' : 'Add image URL';
-  imgBtn.addEventListener('click', () => {
-    const url = prompt(`Image URL for ${ex.name}:\n(leave blank to remove)`, state.images[ex.id] || '');
+  function openImageUrlPrompt() {
+    const def = state.images[ex.id] || bundled || '';
+    const url = prompt(`Image URL for ${ex.name}:\n(clear to use bundled photo or remove)`, def);
     if (url === null) return;
-    if (url.trim()) state.images[ex.id] = url.trim();
-    else delete state.images[ex.id];
+    const t = url.trim();
+    if (!t) {
+      delete state.images[ex.id];
+    } else {
+      state.images[ex.id] = t;
+    }
     saveState();
     render();
-  });
-  nameRow.appendChild(imgBtn);
-  body.appendChild(nameRow);
-
-  // Image
-  if (imgUrl) {
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'ex-image-wrap visible';
-    const img = document.createElement('img');
-    img.src = imgUrl;
-    img.alt = ex.name;
-    img.addEventListener('click', () => window.open(imgUrl, '_blank'));
-    imgWrap.appendChild(img);
-    body.appendChild(imgWrap);
   }
+
+  // Name row (+ thumbnail column when bundled / custom image exists)
+  const nameRow = document.createElement('div');
+  nameRow.className = 'ex-name-row';
+  const title = document.createElement('div');
+  title.className = 'ex-name';
+  title.textContent = ex.name;
+  nameRow.appendChild(title);
+
+  if (imgUrl) {
+    inner.classList.add('has-ex-thumb');
+  } else {
+    const right = document.createElement('div');
+    right.className = 'ex-name-right';
+    const imgBtn = document.createElement('button');
+    imgBtn.className = 'img-btn';
+    imgBtn.type = 'button';
+    imgBtn.textContent = 'img';
+    imgBtn.title = 'Add image URL';
+    imgBtn.addEventListener('click', () => openImageUrlPrompt());
+    right.appendChild(imgBtn);
+    nameRow.appendChild(right);
+  }
+  body.appendChild(nameRow);
 
   // Weights grid
   const grid = document.createElement('div');
@@ -956,7 +1048,23 @@ function buildExerciseCard(ex, dayState) {
   });
 
   body.appendChild(grid);
-  inner.appendChild(body);
+
+  if (imgUrl) {
+    const thumbCol = document.createElement('div');
+    thumbCol.className = 'ex-thumb-col';
+    const thumb = document.createElement('img');
+    thumb.className = 'ex-thumb';
+    thumb.src = imgUrl;
+    thumb.alt = ex.name;
+    thumb.title = 'Tap to set custom image URL';
+    thumb.addEventListener('click', () => openImageUrlPrompt());
+    thumbCol.appendChild(thumb);
+    inner.appendChild(body);
+    inner.appendChild(thumbCol);
+  } else {
+    inner.appendChild(body);
+  }
+
   card.appendChild(inner);
   return card;
 }

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IronLog — Direction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #131313;
+      --border: #2e2e2e;
+      --accent: #f97316;
+      --text: #f0ede8;
+      --muted: #888;
+      --john: #4db8ff;
+      --kyong: #ff6eb4;
+      --ok: #22c55e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+      padding: 24px 18px 48px;
+    }
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(28px, 6vw, 36px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .launch {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .launch a {
+      display: inline-block;
+      padding: 12px 20px;
+      background: var(--accent);
+      color: #000;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .launch a:hover { filter: brightness(1.08); }
+    .launch a.secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 18px 16px;
+      margin-bottom: 14px;
+    }
+    h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    ul { padding-left: 1.15em; margin-bottom: 4px; }
+    li { margin-bottom: 8px; }
+    li:last-child { margin-bottom: 0; }
+    .tag { font-size: 11px; color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 11px; letter-spacing: 0.5px; }
+    .yes { color: var(--ok); }
+    .no { color: var(--muted); }
+    footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    footer a { color: var(--john); }
+    code {
+      font-size: 12px;
+      background: #1c1c1c;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>IRONLOG</h1>
+    <p class="sub">Direction — open this file in a browser anytime to see where the project is headed.</p>
+
+    <div class="launch">
+      <a href="index.html">Open the app</a>
+      <a class="secondary" href="https://jgarr16.github.io/ironlog/">Live site</a>
+    </div>
+
+    <section>
+      <h2>North star</h2>
+      <ul>
+        <li>Mobile-first gym tracker for two lifters — fast to log, easy to read side-by-side.</li>
+        <li>Single-file PWA (<code>index.html</code>), no build step; data stays in the browser (<code>localStorage</code>).</li>
+        <li>Machine reference photos in-repo so each exercise can show the right station at a glance.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Where we are now</h2>
+      <ul>
+        <li>Five training days + Notes tab; John / Kyong weights on one card per exercise.</li>
+        <li>Bundled thumbnails for many exercises from the <code>images/</code> folder (chest, shoulders, legs, cable stack, pallof, etc.).</li>
+        <li>Triceps extension shares the cable-station photo with lat pulldown (same machine); optional custom image URL per exercise still available (tap thumbnail).</li>
+        <li>Weekly export to <code>ironlog-history.json</code> on “Start New Week.”</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Where we’re going next</h2>
+      <ul>
+        <li><strong>Photos:</strong> Add a standing triceps pushdown shot (different from seated extension / cable stack). Fill in assets for exercises that still use the <code>img</code> placeholder (e.g. seated row, face pull, pec fly, calf raise on leg press) as you get pictures.</li>
+        <li><strong>Polish:</strong> Keep layout tight on small phones as more thumbnails and labels land.</li>
+        <li><strong>README alignment:</strong> Update docs if the shipped feature set drifts from <code>README.md</code> (program tables, Pallof naming, etc.).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Machine images (repo)</h2>
+      <p class="tag" style="margin-bottom: 8px;">Bundled in the app vs still placeholder-only</p>
+      <table>
+        <thead>
+          <tr><th>Area</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Push A (chest, shoulder, triceps ext, pallof)</td><td class="yes">Bundled</td></tr>
+          <tr><td>Lower A (leg press, curl, extension)</td><td class="yes">Bundled</td></tr>
+          <tr><td>Pull A (lat pulldown, pallof)</td><td class="yes">Bundled</td></tr>
+          <tr><td>Pull A (seated row, face pull)</td><td class="no">No asset yet</td></tr>
+          <tr><td>Push B (shoulder, pec fly)</td><td class="yes">Partial — shoulder yes; pec fly no</td></tr>
+          <tr><td>Push B (triceps pushdown)</td><td class="no">Waiting on standing-cable photo</td></tr>
+          <tr><td>Lower B (leg press, ham curl, pallof)</td><td class="yes">Bundled</td></tr>
+          <tr><td>Lower B (calf on leg press)</td><td class="no">No asset yet</td></tr>
+          <tr><td>Hello Dollies (bodyweight)</td><td class="no">Placeholder only (optional)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      Repo: <a href="https://github.com/jgarr16/ironlog">github.com/jgarr16/ironlog</a> · Local preview: open <code>roadmap.html</code> or <code>index.html</code> from this folder.
+    </footer>
+  </div>
+</body>
+</html>
