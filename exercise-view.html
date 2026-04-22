@@ -15,6 +15,8 @@
       --accent: #f97316;
       --text: #f0ede8;
       --muted: #888;
+      --john: #4db8ff;
+      --kyong: #ff6eb4;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -182,12 +184,51 @@
     }
     .stack-table th:first-child,
     .stack-table td:first-child { padding-right: 6px; }
-    .stack-table th:last-child,
-    .stack-table td:last-child {
+    .stack-table .stack-col-weight {
       padding-left: 6px;
       font-variant-numeric: tabular-nums;
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 700;
+    }
+    .stack-table th.stack-badge-head,
+    .stack-table td.stack-badge-cell {
+      width: 1%;
+      padding: 11px 12px 11px 8px;
+      text-align: right;
+      vertical-align: middle;
+      border-left: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .stack-badges {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .stack-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+    .stack-badge-john { color: var(--john); }
+    .stack-badge-kyong { color: var(--kyong); }
+    .stack-highlight-john {
+      background: rgba(77, 184, 255, 0.16);
+      box-shadow: inset 3px 0 0 var(--john);
+    }
+    .stack-highlight-kyong {
+      background: rgba(255, 110, 180, 0.12);
+      box-shadow: inset 3px 0 0 var(--kyong);
+    }
+    .stack-highlight-john.stack-highlight-kyong {
+      background: linear-gradient(
+        120deg,
+        rgba(77, 184, 255, 0.18) 0%,
+        rgba(255, 110, 180, 0.14) 100%
+      );
+      box-shadow: inset 3px 0 0 var(--john), inset -3px 0 0 var(--kyong);
     }
     .stack-table tr:last-child td { border-bottom: none; }
     .stack-table th {
@@ -231,17 +272,17 @@
         <p class="ex-subtitle" id="subtitle" hidden></p>
       </div>
 
+      <section class="notes-section" id="notesSection" hidden>
+        <h2>Notes (this week)</h2>
+        <textarea id="noteInput" class="ex-note-input" placeholder="Quick note for this lift—machine issue, next-week weight, form cue…"></textarea>
+        <p class="ex-note-hint">Saved with this week. Included in <code>ironlog-history.json</code> when you start a new week.</p>
+      </section>
+
       <section class="table-section" id="tableSection" hidden>
         <h2>Weight stack</h2>
         <div class="stack-table-wrap" id="tableWrap"></div>
         <p class="table-status" id="tableLoading">Loading reference…</p>
         <p class="table-status" id="tableEmpty" hidden>No stack table for this exercise.</p>
-      </section>
-
-      <section class="notes-section" id="notesSection" hidden>
-        <h2>Notes (this week)</h2>
-        <textarea id="noteInput" class="ex-note-input" placeholder="Quick note for this lift—machine issue, next-week weight, form cue…"></textarea>
-        <p class="ex-note-hint">Saved with this week. Included in <code>ironlog-history.json</code> when you start a new week.</p>
       </section>
     </div>
   </div>
@@ -292,6 +333,100 @@
       }
       table.appendChild(tbody);
       return table;
+    }
+
+    function findStackWeightColumnIndex(table) {
+      const ths = table.querySelectorAll('thead tr th');
+      if (!ths.length) return 1;
+      const labels = [...ths].map(th => th.textContent.trim());
+      let idx = labels.findIndex(h => /weight/i.test(h));
+      if (idx < 0) idx = labels.length - 1;
+      return idx;
+    }
+
+    function annotateStackWeightColumn(table) {
+      const wIdx = findStackWeightColumnIndex(table);
+      const headThs = table.querySelectorAll('thead tr th');
+      if (headThs[wIdx]) headThs[wIdx].classList.add('stack-col-weight');
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds[wIdx]) tds[wIdx].classList.add('stack-col-weight');
+      });
+    }
+
+    function parseWeightQuery(s) {
+      if (s == null || s === '') return null;
+      const n = parseInt(String(s).trim(), 10);
+      return isNaN(n) ? null : n;
+    }
+
+    function applyPersonStackHighlights(table, johnW, kyongW) {
+      const jN = parseWeightQuery(johnW);
+      const kN = parseWeightQuery(kyongW);
+      if (jN == null && kN == null) return;
+
+      const weightIdx = findStackWeightColumnIndex(table);
+      const segmentIdx = 0;
+      const bodyRows = [...table.querySelectorAll('tbody tr')];
+      let anyMatch = false;
+      bodyRows.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length <= weightIdx) return;
+        const w = parseInt(tds[weightIdx].textContent.trim(), 10);
+        if (isNaN(w)) return;
+        if (jN != null && w === jN) anyMatch = true;
+        if (kN != null && w === kN) anyMatch = true;
+      });
+      if (!anyMatch) return;
+
+      const theadRow = table.querySelector('thead tr');
+      if (!theadRow) return;
+      const badgeTh = document.createElement('th');
+      badgeTh.className = 'stack-badge-head';
+      badgeTh.setAttribute('aria-hidden', 'true');
+      theadRow.appendChild(badgeTh);
+
+      bodyRows.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length <= weightIdx) return;
+        const wCell = tds[weightIdx];
+        const segCell = tds[segmentIdx];
+        const w = parseInt(wCell.textContent.trim(), 10);
+        if (isNaN(w)) return;
+
+        const showJ = jN != null && w === jN;
+        const showK = kN != null && w === kN;
+
+        if (showJ) {
+          tr.classList.add('stack-row-john');
+          segCell.classList.add('stack-highlight-john');
+          wCell.classList.add('stack-highlight-john');
+        }
+        if (showK) {
+          tr.classList.add('stack-row-kyong');
+          segCell.classList.add('stack-highlight-kyong');
+          wCell.classList.add('stack-highlight-kyong');
+        }
+
+        const badgeTd = document.createElement('td');
+        badgeTd.className = 'stack-badge-cell';
+        const wrap = document.createElement('div');
+        wrap.className = 'stack-badges';
+        if (showJ) {
+          const s = document.createElement('span');
+          s.className = 'stack-badge stack-badge-john';
+          s.textContent = 'J';
+          wrap.appendChild(s);
+        }
+        if (showK) {
+          const s = document.createElement('span');
+          s.className = 'stack-badge stack-badge-kyong';
+          s.textContent = 'K';
+          wrap.appendChild(s);
+        }
+        badgeTd.appendChild(wrap);
+        tr.appendChild(badgeTd);
+      });
     }
 
     function saveExerciseNote(exId, text) {
@@ -378,6 +513,8 @@
             const tbl = renderStackTable(rows);
             if (tbl) {
               tableWrap.appendChild(tbl);
+              annotateStackWeightColumn(tbl);
+              applyPersonStackHighlights(tbl, params.get('johnW'), params.get('kyongW'));
             } else {
               tableEmpty.hidden = false;
               tableEmpty.textContent = 'Stack file had no table (check markdown format).';

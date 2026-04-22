@@ -1287,6 +1287,13 @@ function buildExerciseCard(ex, dayState, dayNum) {
         q.set('day', String(dayNum));
         if (d) q.set('dayName', d.name);
       }
+      if (!ex.isBodyweight) {
+        const stack = EXERCISE_STACK_WEIGHTS[ex.id];
+        const j = stack && stack.length ? snapToStack(johnW, stack) : johnW;
+        const k = stack && stack.length ? snapToStack(kyongW, stack) : kyongW;
+        q.set('johnW', String(j));
+        q.set('kyongW', String(k));
+      }
       window.location.href = 'exercise-view.html?' + q.toString();
     });
     thumbCol.appendChild(thumb);
