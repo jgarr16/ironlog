@@ -136,12 +136,18 @@
       outline: none;
       border-color: var(--accent);
     }
-    .ex-note-hint {
-      font-size: 11px;
+    .page-foot {
+      flex-shrink: 0;
+      margin-top: auto;
+      padding: 10px 16px 22px;
+      font-size: 10px;
+      line-height: 1.35;
       color: var(--muted);
-      margin-top: 6px;
       text-align: center;
-      line-height: 1.4;
+    }
+    .page-foot code {
+      font-size: 9px;
+      color: #6a6a6a;
     }
     .table-section {
       display: flex;
@@ -172,7 +178,8 @@
     }
     table.stack-table {
       width: auto;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 16px;
     }
     .stack-table th,
@@ -181,6 +188,8 @@
       text-align: center;
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
+      -webkit-background-clip: padding-box;
+      background-clip: padding-box;
     }
     .stack-table th:first-child,
     .stack-table td:first-child { padding-right: 6px; }
@@ -214,21 +223,26 @@
     }
     .stack-badge-john { color: var(--john); }
     .stack-badge-kyong { color: var(--kyong); }
+    /* Borders + solid backgrounds: iOS Safari often skips inset box-shadow on <td> */
     .stack-highlight-john {
-      background: rgba(77, 184, 255, 0.16);
-      box-shadow: inset 3px 0 0 var(--john);
+      background-color: rgba(77, 184, 255, 0.2);
+      border-left: 3px solid var(--john);
+      padding-left: 11px;
     }
     .stack-highlight-kyong {
-      background: rgba(255, 110, 180, 0.12);
-      box-shadow: inset 3px 0 0 var(--kyong);
+      background-color: rgba(255, 110, 180, 0.16);
+      border-left: 3px solid var(--kyong);
+      padding-left: 11px;
     }
     .stack-highlight-john.stack-highlight-kyong {
-      background: linear-gradient(
+      background-image: linear-gradient(
         120deg,
-        rgba(77, 184, 255, 0.18) 0%,
-        rgba(255, 110, 180, 0.14) 100%
+        rgba(77, 184, 255, 0.22) 0%,
+        rgba(255, 110, 180, 0.16) 100%
       );
-      box-shadow: inset 3px 0 0 var(--john), inset -3px 0 0 var(--kyong);
+      background-color: rgba(100, 150, 190, 0.12);
+      border-left: 3px solid var(--john);
+      padding-left: 11px;
     }
     .stack-table tr:last-child td { border-bottom: none; }
     .stack-table th {
@@ -273,9 +287,8 @@
       </div>
 
       <section class="notes-section" id="notesSection" hidden>
-        <h2>Notes (this week)</h2>
-        <textarea id="noteInput" class="ex-note-input" placeholder="Quick note for this lift—machine issue, next-week weight, form cue…"></textarea>
-        <p class="ex-note-hint">Saved with this week. Included in <code>ironlog-history.json</code> when you start a new week.</p>
+        <h2>Notes</h2>
+        <textarea id="noteInput" class="ex-note-input" placeholder="notes"></textarea>
       </section>
 
       <section class="table-section" id="tableSection" hidden>
@@ -285,6 +298,9 @@
         <p class="table-status" id="tableEmpty" hidden>No stack table for this exercise.</p>
       </section>
     </div>
+    <footer class="page-foot" id="pageFoot" hidden>
+      Notes save with the current week and appear in <code>ironlog-history.json</code> when you start a new week.
+    </footer>
   </div>
 
   <script>
@@ -466,6 +482,7 @@
       document.getElementById('title').textContent = title || 'Exercise';
       document.title = (title || 'Exercise') + ' — IronLog';
       document.getElementById('content').removeAttribute('hidden');
+      document.getElementById('pageFoot').removeAttribute('hidden');
 
       if (dayNum && dayName) {
         const sub = document.getElementById('subtitle');
