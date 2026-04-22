@@ -258,22 +258,54 @@
       transition: background 0.15s;
     }
     .exercise-card.done .exercise-inner { background: #111a12; }
-    .ex-check { flex-shrink: 0; margin-top: 1px; }
-    .ex-check input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--success); cursor: pointer; }
-    .ex-body { flex: 1; min-width: 0; }
+    .ex-body { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
 
     .ex-name-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       min-width: 0;
+    }
+    .ex-done-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .ex-done-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--success);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ex-done-label {
+      font-size: 14px;
+      color: var(--muted2);
+      letter-spacing: 0.3px;
+    }
+    .ex-weight-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .weight-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      width: 100%;
     }
     .ex-name {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.35px;
       flex: 1;
       min-width: 0;
     }
@@ -291,39 +323,68 @@
       display: block;
       background: var(--s3);
     }
-    /* Tall image column on the right; title + weights centered in remaining space */
+    /* Tall image column on the right; title / Done / lifters centered in text column */
     .exercise-inner.has-ex-thumb {
       align-items: stretch;
       gap: 12px;
-      padding: 10px 10px 10px 12px;
+      padding: 10px 10px 12px 12px;
     }
     .exercise-inner.has-ex-thumb .ex-body {
       flex: 1 1 0;
       min-width: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       padding-right: 2px;
+      align-items: center;
     }
     .exercise-inner.has-ex-thumb .ex-name-row {
       width: 100%;
       justify-content: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .exercise-inner.has-ex-thumb .ex-name {
-      text-align: center;
       flex: none;
+      width: 100%;
+      text-align: center;
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.15;
     }
-    .exercise-inner.has-ex-thumb .weights-grid {
-      width: fit-content;
+    .exercise-inner.has-ex-thumb .ex-done-row {
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+    .exercise-inner.has-ex-thumb .ex-done-label {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.8px;
+    }
+    .exercise-inner.has-ex-thumb .ex-weight-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
       max-width: 100%;
-      margin-left: auto;
-      margin-right: auto;
-      gap: 0 18px;
     }
-    .exercise-inner.has-ex-thumb .ex-check {
-      align-self: center;
+    .exercise-inner.has-ex-thumb .weight-row {
+      align-items: center;
+      padding: 12px 8px 14px;
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      gap: 10px;
+      box-sizing: border-box;
+    }
+    .exercise-inner.has-ex-thumb .weight-person {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+    }
+    .exercise-inner.has-ex-thumb .weight-value-wrap {
+      justify-content: center;
+      width: 100%;
     }
     .ex-thumb-col {
       flex: 0 0 46%;
@@ -357,8 +418,6 @@
     }
     .img-btn.has-img { border-color: var(--accent); color: var(--accent); }
 
-    /* Transposed weights grid */
-    .weights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
     .weight-person {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 11px;
@@ -383,13 +442,11 @@
       font-weight: 900;
       min-width: 42px;
     }
-    .exercise-inner.has-ex-thumb .exercise-weight-stepper .stepper-val { font-size: 20px; }
+    .exercise-inner.has-ex-thumb .exercise-weight-stepper .stepper-val { font-size: 21px; }
     .exercise-weight-stepper .stepper-btn:disabled {
       opacity: 0.35;
       cursor: not-allowed;
     }
-    .weight-unit   { font-size: 12px; color: var(--muted); }
-    .weight-target { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .bodyweight-value { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; }
     .weight-edit-input {
       width: 72px;
@@ -1017,22 +1074,6 @@ function buildExerciseCard(ex, dayState) {
   const inner = document.createElement('div');
   inner.className = 'exercise-inner';
 
-  // Done checkbox
-  const checkWrap = document.createElement('div');
-  checkWrap.className = 'ex-check';
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.checked = done;
-  checkbox.addEventListener('change', e => {
-    dayState.done[ex.id] = e.target.checked;
-    saveState();
-    card.classList.toggle('done', e.target.checked);
-    refreshTabs(); // update ✓ without resetting scroll
-  });
-  checkWrap.appendChild(checkbox);
-  inner.appendChild(checkWrap);
-
-  // Body
   const body = document.createElement('div');
   body.className = 'ex-body';
 
@@ -1074,27 +1115,39 @@ function buildExerciseCard(ex, dayState) {
   }
   body.appendChild(nameRow);
 
-  // Weights grid
-  const grid = document.createElement('div');
-  grid.className = 'weights-grid';
+  const doneRow = document.createElement('label');
+  doneRow.className = 'ex-done-row';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = done;
+  checkbox.addEventListener('change', e => {
+    dayState.done[ex.id] = e.target.checked;
+    saveState();
+    card.classList.toggle('done', e.target.checked);
+    refreshTabs();
+  });
+  doneRow.appendChild(checkbox);
+  const doneLbl = document.createElement('span');
+  doneLbl.className = 'ex-done-label';
+  doneLbl.textContent = 'Done';
+  doneRow.appendChild(doneLbl);
+  body.appendChild(doneRow);
+
+  const weightStack = document.createElement('div');
+  weightStack.className = 'ex-weight-stack';
 
   ['john', 'kyong'].forEach(person => {
     const exDef = ex[person];
     const wVal  = person === 'john' ? johnW : kyongW;
-    const col   = document.createElement('div');
-    col.className = 'weight-col';
+    const row   = document.createElement('div');
+    row.className = 'weight-row';
 
     const personLabel = document.createElement('div');
     personLabel.className = 'weight-person tag-' + person;
     personLabel.textContent = person.toUpperCase();
-    col.appendChild(personLabel);
+    row.appendChild(personLabel);
 
-    if (ex.isBodyweight) {
-      const bw = document.createElement('div');
-      bw.className = 'bodyweight-value';
-      bw.textContent = `${exDef.sets}×${exDef.reps}`;
-      col.appendChild(bw);
-    } else {
+    if (!ex.isBodyweight) {
       const valueWrap = document.createElement('div');
       valueWrap.className = 'weight-value-wrap';
 
@@ -1136,7 +1189,6 @@ function buildExerciseCard(ex, dayState) {
         stepper.appendChild(valEl);
         stepper.appendChild(plus);
         valueWrap.appendChild(stepper);
-        valueWrap.insertAdjacentHTML('beforeend', '<span class="weight-unit">lb</span>');
       } else {
         const valueEl = document.createElement('span');
         valueEl.className = 'weight-value';
@@ -1164,20 +1216,14 @@ function buildExerciseCard(ex, dayState) {
         });
 
         valueWrap.appendChild(valueEl);
-        valueWrap.insertAdjacentHTML('beforeend', '<span class="weight-unit">lb</span>');
       }
-      col.appendChild(valueWrap);
-
-      const target = document.createElement('div');
-      target.className = 'weight-target';
-      target.textContent = `${exDef.sets}×${exDef.reps}`;
-      col.appendChild(target);
+      row.appendChild(valueWrap);
     }
 
-    grid.appendChild(col);
+    weightStack.appendChild(row);
   });
 
-  body.appendChild(grid);
+  body.appendChild(weightStack);
 
   if (imgUrl) {
     const thumbCol = document.createElement('div');
