@@ -1330,7 +1330,7 @@ function buildExerciseCard(ex, dayState, dayNum) {
     thumb.alt = ex.name;
     thumb.title = 'View full-size image';
     thumb.addEventListener('click', () => {
-      const viewSrc = state.images[ex.id] || bundled || imgUrl;
+      const viewSrc = state.images[ex.id] || bundledDark || bundled || imgUrl;
       const q = new URLSearchParams({ src: viewSrc, title: ex.name, id: ex.id });
       const mdPath = bundled ? bundled.replace(/\.(png|jpg|jpeg|webp)$/i, '.md') : '';
       if (mdPath) q.set('md', mdPath);
