@@ -240,6 +240,39 @@
     }
     .laps-unit { font-size: 12px; color: var(--muted); margin-left: 5px; }
 
+    /* Top collapsible strip (cardio / body weight / assist) — larger type */
+    .top-strip .check-pill {
+      font-size: 16px;
+    }
+    .top-strip .check-pill input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+    .top-strip .person-tag {
+      font-size: 14px;
+      min-width: 52px;
+    }
+    .top-strip .laps-unit {
+      font-size: 14px;
+      margin-left: 6px;
+    }
+    .top-strip .stepper-val {
+      font-size: 19px;
+      min-width: 50px;
+      height: 34px;
+    }
+    .top-strip .stepper-btn {
+      width: 34px;
+      height: 34px;
+      font-size: 20px;
+    }
+    .top-strip .stepper-btn.minus { border-radius: 7px 0 0 7px; }
+    .top-strip .stepper-btn.plus  { border-radius: 0 7px 7px 0; }
+    .top-strip .cardio-row,
+    .top-strip .assist-row {
+      padding: 13px 14px;
+    }
+
     /* ── Assist card ─────────────────────────────────── */
     .assist-card {
       background: var(--s2);
@@ -976,7 +1009,7 @@ function buildDayPanel(dayNum) {
 
   // Build top section body + chevron first so we can wire the toggle into the header
   const topBody = document.createElement('div');
-  topBody.className = 'section-body' + (isCollapsed(dayNum, 'top') ? ' collapsed' : '');
+  topBody.className = 'section-body top-strip' + (isCollapsed(dayNum, 'top') ? ' collapsed' : '');
 
   const topChevron = document.createElement('span');
   topChevron.className = 'section-chevron' + (isCollapsed(dayNum, 'top') ? ' collapsed' : '');
