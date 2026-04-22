@@ -112,7 +112,18 @@
       margin-bottom: 8px;
     }
     .day-focus { font-size: 13px; color: var(--muted2); }
-    .day-header .section-chevron { font-size: 14px; padding: 4px 0 4px 12px; cursor: pointer; }
+    .day-header .section-chevron {
+      font-size: 22px;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      min-height: 44px;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     /* ── Section label ───────────────────────────────── */
     .section-label {
@@ -270,8 +281,11 @@
     .ex-done-row {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-top: 12px;
+      margin-bottom: 0;
+      width: 100%;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
@@ -323,7 +337,7 @@
       display: block;
       background: var(--s3);
     }
-    /* Tall image column on the right; title / Done / lifters centered in text column */
+    /* Tall image column on the right; title + lifters + Done (bottom) in text column */
     .exercise-inner.has-ex-thumb {
       align-items: stretch;
       gap: 12px;
@@ -338,7 +352,7 @@
     .exercise-inner.has-ex-thumb .ex-name-row {
       width: 100%;
       justify-content: center;
-      margin-bottom: 4px;
+      margin-bottom: 10px;
     }
     .exercise-inner.has-ex-thumb .ex-name {
       flex: none;
@@ -350,9 +364,8 @@
       line-height: 1.15;
     }
     .exercise-inner.has-ex-thumb .ex-done-row {
-      justify-content: center;
-      width: 100%;
-      margin-bottom: 14px;
+      margin-top: 14px;
+      padding-top: 2px;
     }
     .exercise-inner.has-ex-thumb .ex-done-label {
       color: var(--muted);
@@ -511,6 +524,12 @@
     .history-item  { background: var(--s2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 13px; margin-bottom: 8px; }
     .history-meta  { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .history-notes { font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.5; }
+    .history-exercise-notes { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .history-exercise-notes-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .history-ex-note { margin-bottom: 10px; }
+    .history-ex-note:last-child { margin-bottom: 0; }
+    .history-ex-note-title { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent); margin-bottom: 4px; }
+    .history-ex-note-body { font-size: 12px; color: var(--text); white-space: pre-wrap; line-height: 1.45; }
     .history-empty { font-style: italic; color: var(--muted); }
   </style>
 </head>
@@ -692,7 +711,8 @@ function defaultCurrentWeek() {
   return {
     startDate: todayStr(),
     days: Object.fromEntries([1,2,3,4,5].map(n => [n, defaultDayState()])),
-    notes: ''
+    notes: '',
+    exerciseNotes: {}
   };
 }
 
@@ -724,6 +744,9 @@ function loadState() {
         if (d.cardio.kyong.stairway  === undefined) d.cardio.kyong.stairway  = false;
       }
     });
+    if (!s.currentWeek.exerciseNotes || typeof s.currentWeek.exerciseNotes !== 'object') {
+      s.currentWeek.exerciseNotes = {};
+    }
     if (normalizeStackWeights(s)) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /* ignore */ }
     }
@@ -771,6 +794,26 @@ function esc(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+function exerciseNotesHistoryHtml(exerciseNotes) {
+  if (!exerciseNotes || typeof exerciseNotes !== 'object') return '';
+  const idToTitle = {};
+  DAYS.forEach(d => d.exercises.forEach(ex => { idToTitle[ex.id] = ex.name; }));
+  const parts = [];
+  for (const [id, text] of Object.entries(exerciseNotes)) {
+    const t = String(text || '').trim();
+    if (!t) continue;
+    const label = idToTitle[id] || id;
+    parts.push(
+      '<div class="history-ex-note">' +
+      '<span class="history-ex-note-title">' + esc(label) + '</span>' +
+      '<div class="history-ex-note-body">' + esc(t) + '</div></div>'
+    );
+  }
+  if (!parts.length) return '';
+  return '<div class="history-exercise-notes"><div class="history-exercise-notes-label">Per-exercise notes</div>' +
+    parts.join('') + '</div>';
 }
 
 function buildStepper(initialValue, onChange, { min = 0, step = 1 } = {}) {
@@ -1055,7 +1098,7 @@ function buildDayPanel(dayNum) {
   panel.insertAdjacentHTML('beforeend', '<div class="section-label">Weights</div>');
 
   day.exercises.forEach(ex => {
-    panel.appendChild(buildExerciseCard(ex, dayState));
+    panel.appendChild(buildExerciseCard(ex, dayState, dayNum));
   });
 
   return panel;
@@ -1063,7 +1106,7 @@ function buildDayPanel(dayNum) {
 
 // ─── Exercise card ────────────────────────────────────────────────────────────
 
-function buildExerciseCard(ex, dayState) {
+function buildExerciseCard(ex, dayState, dayNum) {
   const done   = dayState.done[ex.id] || false;
   const johnW  = (state.weights[ex.id] || {}).john  ?? ex.john.weight;
   const kyongW = (state.weights[ex.id] || {}).kyong ?? ex.kyong.weight;
@@ -1116,24 +1159,6 @@ function buildExerciseCard(ex, dayState) {
     nameRow.appendChild(right);
   }
   body.appendChild(nameRow);
-
-  const doneRow = document.createElement('label');
-  doneRow.className = 'ex-done-row';
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.checked = done;
-  checkbox.addEventListener('change', e => {
-    dayState.done[ex.id] = e.target.checked;
-    saveState();
-    card.classList.toggle('done', e.target.checked);
-    refreshTabs();
-  });
-  doneRow.appendChild(checkbox);
-  const doneLbl = document.createElement('span');
-  doneLbl.className = 'ex-done-label';
-  doneLbl.textContent = 'Done';
-  doneRow.appendChild(doneLbl);
-  body.appendChild(doneRow);
 
   const weightStack = document.createElement('div');
   weightStack.className = 'ex-weight-stack';
@@ -1227,6 +1252,24 @@ function buildExerciseCard(ex, dayState) {
 
   body.appendChild(weightStack);
 
+  const doneRow = document.createElement('label');
+  doneRow.className = 'ex-done-row';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = done;
+  checkbox.addEventListener('change', e => {
+    dayState.done[ex.id] = e.target.checked;
+    saveState();
+    card.classList.toggle('done', e.target.checked);
+    refreshTabs();
+  });
+  doneRow.appendChild(checkbox);
+  const doneLbl = document.createElement('span');
+  doneLbl.className = 'ex-done-label';
+  doneLbl.textContent = 'Done';
+  doneRow.appendChild(doneLbl);
+  body.appendChild(doneRow);
+
   if (imgUrl) {
     const thumbCol = document.createElement('div');
     thumbCol.className = 'ex-thumb-col';
@@ -1239,6 +1282,11 @@ function buildExerciseCard(ex, dayState) {
       const q = new URLSearchParams({ src: imgUrl, title: ex.name, id: ex.id });
       const mdPath = bundled ? bundled.replace(/\.(png|jpg|jpeg|webp)$/i, '.md') : '';
       if (mdPath) q.set('md', mdPath);
+      const d = DAYS.find(x => x.num === dayNum);
+      if (dayNum != null) {
+        q.set('day', String(dayNum));
+        if (d) q.set('dayName', d.name);
+      }
       window.location.href = 'exercise-view.html?' + q.toString();
     });
     thumbCol.appendChild(thumb);
@@ -1305,8 +1353,9 @@ function buildNotesPanel() {
       item.innerHTML = `
         <div class="history-meta">Week of ${formatDate(week.startDate)} &middot; ${days}/5 days</div>
         <div class="history-notes">
-          ${week.notes ? esc(week.notes) : '<span class="history-empty">No notes recorded</span>'}
+          ${week.notes ? esc(week.notes) : '<span class="history-empty">No weekly notes recorded</span>'}
         </div>
+        ${exerciseNotesHistoryHtml(week.exerciseNotes)}
       `;
       histSection.appendChild(item);
     });
@@ -1321,8 +1370,9 @@ function buildNotesPanel() {
 function startNewWeek() {
   state.history.push({
     startDate: state.currentWeek.startDate,
-    notes:     state.currentWeek.notes,
-    days:      JSON.parse(JSON.stringify(state.currentWeek.days))
+    notes: state.currentWeek.notes,
+    exerciseNotes: JSON.parse(JSON.stringify(state.currentWeek.exerciseNotes || {})),
+    days: JSON.parse(JSON.stringify(state.currentWeek.days))
   });
   state.currentWeek = defaultCurrentWeek();
   saveState();

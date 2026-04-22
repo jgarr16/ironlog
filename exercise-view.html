@@ -30,7 +30,6 @@
       display: flex;
       flex-direction: column;
     }
-    /* Image flush to top of the page */
     .hero {
       flex-shrink: 0;
       width: 100%;
@@ -48,27 +47,99 @@
     }
     .content {
       flex: 1;
-      padding: 14px 14px 24px;
+      padding: 16px 16px 28px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+    }
+    .content-top {
+      width: 100%;
+      text-align: center;
+    }
+    .nav-row {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 14px;
     }
     .back {
-      display: inline-block;
-      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       color: var(--accent);
       text-decoration: none;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      padding: 6px 2px;
+      -webkit-tap-highlight-color: transparent;
     }
     .back:active { opacity: 0.75; }
-    h1 {
+    .back-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .back-arrow svg {
+      width: 38px;
+      height: 38px;
+      display: block;
+    }
+    .back-home svg {
+      width: 44px;
+      height: 44px;
+      display: block;
+    }
+    h1.ex-title {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px;
+      font-size: 28px;
       font-weight: 900;
-      letter-spacing: 0.5px;
-      line-height: 1.2;
+      letter-spacing: 0.6px;
+      line-height: 1.15;
+      width: 100%;
+      padding: 0 4px;
+      margin-bottom: 6px;
+    }
+    .ex-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+    .notes-section {
+      width: 100%;
+      margin-top: 4px;
+    }
+    .notes-section h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .ex-note-input {
+      width: 100%;
+      min-height: 100px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: 'Barlow', sans-serif;
+      line-height: 1.45;
+      resize: vertical;
+    }
+    .ex-note-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .ex-note-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
+      line-height: 1.4;
     }
     .table-section {
       display: flex;
@@ -110,9 +181,7 @@
       white-space: nowrap;
     }
     .stack-table th:first-child,
-    .stack-table td:first-child {
-      padding-right: 6px;
-    }
+    .stack-table td:first-child { padding-right: 6px; }
     .stack-table th:last-child,
     .stack-table td:last-child {
       padding-left: 6px;
@@ -136,18 +205,6 @@
       width: 100%;
       text-align: center;
     }
-    .footer {
-      font-size: 13px;
-      color: var(--muted);
-      padding-top: 4px;
-    }
-    .footer a {
-      color: var(--accent);
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .footer a:active { opacity: 0.8; }
     .missing {
       padding: 24px;
       text-align: center;
@@ -159,9 +216,19 @@
   <div class="page" id="page">
     <div class="hero" id="hero"></div>
     <div class="content" id="content" hidden>
-      <div>
-        <a class="back" href="index.html">← Back to IronLog</a>
-        <h1 id="title"></h1>
+      <div class="content-top">
+        <div class="nav-row">
+          <a class="back" href="index.html" aria-label="Back to IronLog home">
+            <span class="back-arrow" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </span>
+            <span class="back-home" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </span>
+          </a>
+        </div>
+        <h1 class="ex-title" id="title"></h1>
+        <p class="ex-subtitle" id="subtitle" hidden></p>
       </div>
 
       <section class="table-section" id="tableSection" hidden>
@@ -171,9 +238,11 @@
         <p class="table-status" id="tableEmpty" hidden>No stack table for this exercise.</p>
       </section>
 
-      <div class="footer" id="footer" hidden>
-        <span id="footerNote"></span>
-      </div>
+      <section class="notes-section" id="notesSection" hidden>
+        <h2>Notes (this week)</h2>
+        <textarea id="noteInput" class="ex-note-input" placeholder="Quick note for this lift—machine issue, next-week weight, form cue…"></textarea>
+        <p class="ex-note-hint">Saved with this week. Included in <code>ironlog-history.json</code> when you start a new week.</p>
+      </section>
     </div>
   </div>
 
@@ -214,7 +283,7 @@
       const tbody = document.createElement('tbody');
       for (let r = 1; r < rows.length; r++) {
         const tr = document.createElement('tr');
-        rows[r].forEach((cell, j) => {
+        rows[r].forEach(cell => {
           const td = document.createElement('td');
           td.textContent = cell;
           tr.appendChild(td);
@@ -225,24 +294,56 @@
       return table;
     }
 
+    function saveExerciseNote(exId, text) {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      let state;
+      try {
+        state = JSON.parse(raw);
+      } catch {
+        return;
+      }
+      if (!state.currentWeek) return;
+      if (!state.currentWeek.exerciseNotes) state.currentWeek.exerciseNotes = {};
+      const t = String(text || '').trim();
+      if (t) state.currentWeek.exerciseNotes[exId] = t;
+      else delete state.currentWeek.exerciseNotes[exId];
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.warn('Could not save note', err);
+      }
+    }
+
     const params = new URLSearchParams(location.search);
     const srcRaw = params.get('src');
     const mdPath = (params.get('md') || '').trim();
     const exId = params.get('id') || '';
+    const dayNum = params.get('day');
+    const dayName = params.get('dayName') || '';
 
     if (!srcRaw) {
       document.getElementById('hero').innerHTML =
-        '<p class="missing">No image selected. <a class="back" style="color: var(--accent)" href="index.html">Return to IronLog</a></p>';
+        '<p class="missing">No image selected. <a class="back" href="index.html" aria-label="Back to IronLog home"><span class="back-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span><span class="back-home" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span></a></p>';
     } else {
-      const src = srcRaw;
       const title = params.get('title') || '';
 
       document.getElementById('title').textContent = title || 'Exercise';
       document.title = (title || 'Exercise') + ' — IronLog';
       document.getElementById('content').removeAttribute('hidden');
 
+      if (dayNum && dayName) {
+        const sub = document.getElementById('subtitle');
+        sub.textContent = 'Day ' + dayNum + ' · ' + dayName;
+        sub.hidden = false;
+      } else if (dayNum) {
+        const sub = document.getElementById('subtitle');
+        sub.textContent = 'Day ' + dayNum;
+        sub.hidden = false;
+      }
+
       const img = document.createElement('img');
-      img.src = src;
+      img.src = srcRaw;
       img.alt = title || 'Exercise machine';
       img.decoding = 'async';
       img.addEventListener('error', () => {
@@ -298,43 +399,20 @@
       }
 
       if (exId) {
-        document.getElementById('footer').hidden = false;
-        const note = document.getElementById('footerNote');
-        note.appendChild(document.createTextNode('Need a different photo? '));
-        const a = document.createElement('a');
-        a.href = '#';
-        a.textContent = 'Set custom image URL';
-        a.addEventListener('click', e => {
-          e.preventDefault();
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) {
-            window.location.href = 'index.html';
-            return;
-          }
-          let state;
-          try {
-            state = JSON.parse(raw);
-          } catch {
-            alert('Could not read saved data.');
-            return;
-          }
-          if (!state.images || typeof state.images !== 'object') state.images = {};
-          const current = state.images[exId] || src;
-          const next = prompt('Image URL for this exercise:\n(clear to remove custom URL and use bundled photo)', current);
-          if (next === null) return;
-          const t = next.trim();
-          if (t) state.images[exId] = t;
-          else delete state.images[exId];
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          } catch (err) {
-            alert('Could not save: ' + (err && err.message ? err.message : 'storage full'));
-            return;
-          }
-          window.location.href = 'index.html';
+        document.getElementById('notesSection').removeAttribute('hidden');
+        const ta = document.getElementById('noteInput');
+        try {
+          const st = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          ta.value = (st.currentWeek && st.currentWeek.exerciseNotes && st.currentWeek.exerciseNotes[exId]) || '';
+        } catch {
+          ta.value = '';
+        }
+        let tsave = null;
+        ta.addEventListener('input', () => {
+          clearTimeout(tsave);
+          tsave = setTimeout(() => saveExerciseNote(exId, ta.value), 300);
         });
-        note.appendChild(a);
-        note.appendChild(document.createTextNode(' — returns to the log.'));
+        ta.addEventListener('blur', () => saveExerciseNote(exId, ta.value));
       }
     }
   </script>
