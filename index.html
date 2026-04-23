@@ -1054,6 +1054,19 @@ function buildCollapsibleSection(label, dayNum, sectionKey, buildBody) {
 
 let activeTab = 1;
 
+/** Restore day tab after returning from exercise-view (full page load drops in-memory tab). */
+function applyUrlTabPreference() {
+  try {
+    const q = new URLSearchParams(location.search);
+    const day = parseInt(q.get('day') || '', 10);
+    if (!isNaN(day) && day >= 1 && day <= 5) activeTab = day;
+    if (location.search) {
+      const clean = location.pathname + location.hash;
+      history.replaceState(null, '', clean);
+    }
+  } catch { /* ignore */ }
+}
+
 function render() {
   renderWeekLabel();
   renderTabs();
@@ -1576,6 +1589,7 @@ function downloadHistory() {
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+applyUrlTabPreference();
 render();
 </script>
 </body>
