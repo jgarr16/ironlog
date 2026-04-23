@@ -653,7 +653,7 @@ const EXERCISE_IMAGES = {
   chest_press:      'images/vertical_chest.png',
   shoulder_press_a: 'images/shoulder_press.png',
   shoulder_press_b: 'images/shoulder_press.png',
-  triceps_ext:      'images/lat_pulldowns.png',
+  triceps_ext:      'images/triceps_extension.png',
   pallof_a:         'images/pallof_press.png',
   pallof_c:         'images/pallof_press.png',
   pallof_e:         'images/pallof_press.png',
@@ -661,8 +661,15 @@ const EXERCISE_IMAGES = {
   leg_press_b:      'images/leg_press.png',
   leg_curl_a:       'images/leg_curl.png',
   leg_ext_a:        'images/leg_extensions.png',
+  hello_dolly_a:    'images/hello_dollies.png',
+  hello_dolly_b:    'images/hello_dollies.png',
   lat_pulldown:     'images/lat_pulldowns.png',
+  seated_row:       'images/seated_row.png',
+  face_pull:        'images/face_pull.png',
+  triceps_pushdown: 'images/triceps_pushdowns.png',
+  pec_fly:          'images/pec_fly.png',
   ham_curl_b:       'images/hamstring_curl.png',
+  calf_raise:       'images/calf_raise.png',
 };
 
 // Dark variants for home/day cards only. Dedicated exercise-view stays on EXERCISE_IMAGES.
@@ -678,26 +685,41 @@ const EXERCISE_IMAGES_DARK = {
   leg_press_b:      'images/leg_press_dk.png',
   leg_curl_a:       'images/leg_curl_dk.png',
   leg_ext_a:        'images/leg_extensions_dk.png',
+  hello_dolly_a:    'images/hello_dollies_dk.png',
+  hello_dolly_b:    'images/hello_dollies_dk.png',
   lat_pulldown:     'images/lat_pulldowns_dk.png',
+  seated_row:       'images/seated_row_dk.png',
+  face_pull:        'images/face_pull_dk.png',
+  triceps_pushdown: 'images/triceps_pushdowns_dk.png',
+  pec_fly:          'images/pec_fly_dk.png',
   ham_curl_b:       'images/hamstring_curl_dk.png',
+  calf_raise:       'images/calf_raise_dk.png',
 };
 
 // Valid stack weights from images/*.md (Weight column). Exercises without a table are omitted.
 const STACK_VERTICAL_CHEST = [20, 35, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200, 215, 230, 245];
 const STACK_SHOULDER       = [10, 20, 30, 40, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200];
+// images/triceps_extension.md (Weight column)
+const STACK_TRICEPS_EXT    = [10, 20, 30, 40, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200];
 const STACK_LAT            = [20, 30, 40, 50, 60, 75, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235, 250, 265, 280];
 const STACK_PALLOF         = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 135, 150, 165, 180, 195];
 const STACK_LEG_PRESS      = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420];
 const STACK_LEG_EXT        = [10, 25, 40, 55, 70, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235, 250, 265, 280, 295];
 const STACK_LEG_CURL       = [10, 30, 50, 70, 90, 110, 130, 150, 170, 190];
 const STACK_HAMSTRING      = [20, 35, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185];
+// images/seated_row.md (Weight column)
+const STACK_SEATED_ROW       = [20, 30, 40, 50, 60, 70, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235];
 
 const EXERCISE_STACK_WEIGHTS = {
   chest_press:      STACK_VERTICAL_CHEST,
   shoulder_press_a: STACK_SHOULDER,
   shoulder_press_b: STACK_SHOULDER,
-  triceps_ext:      STACK_LAT,
+  triceps_ext:      STACK_TRICEPS_EXT,
   lat_pulldown:     STACK_LAT,
+  seated_row:       STACK_SEATED_ROW,
+  face_pull:        STACK_PALLOF,
+  triceps_pushdown: STACK_LAT,
+  pec_fly:          STACK_LEG_EXT,
   pallof_a:         STACK_PALLOF,
   pallof_c:         STACK_PALLOF,
   pallof_e:         STACK_PALLOF,
