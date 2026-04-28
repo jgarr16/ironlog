@@ -526,6 +526,11 @@
     .action-btn:active { opacity: 0.75; }
     .btn-new-week       { background: var(--s3); color: var(--text); border: 1px solid var(--border); }
     .btn-new-week.ready { background: var(--accent); color: #000; border-color: var(--accent); }
+    .btn-week-pack      { background: var(--s2); color: var(--text); border: 1px solid var(--border); margin-top: 10px; }
+    .ai-import-label    { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    .ai-import-textarea { width: 100%; min-height: 90px; background: var(--s2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 12px; font-family: ui-monospace, monospace; line-height: 1.4; resize: vertical; }
+    .ai-import-textarea:focus { outline: none; border-color: var(--accent); }
+    .btn-apply-ai       { background: var(--s3); color: var(--accent); border: 1px solid var(--accent); margin-top: 10px; }
 
     .week-status {
       background: var(--s2);
@@ -602,20 +607,22 @@
 
 const DAYS = [
   {
-    num: 1, name: 'Push A', focus: 'Chest · Shoulders · Triceps',
+    num: 1, name: 'Push A', focus: 'Chest · Shoulders · Triceps · Arms',
     exercises: [
       { id: 'chest_press',      name: 'Chest Press',            john: { weight: 125, sets: 3, reps: '6–10'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
       { id: 'shoulder_press_a', name: 'Shoulder Press',         john: { weight: 50,  sets: 3, reps: '6–10'       }, kyong: { weight: 10,  sets: 3, reps: '10'        } },
       { id: 'triceps_ext',      name: 'Triceps Extension',      john: { weight: 60,  sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '8–12'      } },
+      { id: 'arm_curl',         name: 'Arm Curl',               john: { weight: 50,  sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '8–12'      } },
       { id: 'pallof_a',         name: 'Pallof Press',           john: { weight: 50,  sets: 3, reps: '10–12/side' }, kyong: { weight: 20,  sets: 3, reps: '10–12/side'} },
     ]
   },
   {
-    num: 2, name: 'Lower A', focus: 'Quads · Hamstrings · Glutes',
+    num: 2, name: 'Lower A', focus: 'Quads · Hamstrings · Glutes · Hips',
     exercises: [
       { id: 'leg_press_a',      name: 'Leg Press',              john: { weight: 260, sets: 3, reps: '6–10'       }, kyong: { weight: 60,  sets: 3, reps: '10–12'     } },
       { id: 'leg_curl_a',       name: 'Leg Curl',               john: { weight: 90,  sets: 3, reps: '8–12'       }, kyong: { weight: 20,  sets: 3, reps: '8–12'      } },
       { id: 'leg_ext_a',        name: 'Leg Extension',          john: { weight: 115, sets: 3, reps: '8–12'       }, kyong: { weight: 25,  sets: 3, reps: '8–12'      } },
+      { id: 'hip_abduction',    name: 'Hip Abduction',          john: { weight: 50,  sets: 3, reps: '10–15'      }, kyong: { weight: 10,  sets: 3, reps: '10–15'     } },
       { id: 'hello_dolly_a',    name: 'Hello Dollies',          john: { weight: null, sets: 3, reps: '10'        }, kyong: { weight: null, sets: 3, reps: '10'       }, isBodyweight: true },
     ]
   },
@@ -625,24 +632,27 @@ const DAYS = [
       { id: 'lat_pulldown',     name: 'Lat Pulldown',           john: { weight: 100, sets: 3, reps: '10–12'      }, kyong: { weight: 30,  sets: 3, reps: '10–12'     } },
       { id: 'seated_row',       name: 'Seated Row',             john: { weight: 100, sets: 3, reps: '10–12'      }, kyong: { weight: 30,  sets: 3, reps: '10–12'     } },
       { id: 'face_pull',        name: 'Face Pull',              john: { weight: 40,  sets: 3, reps: '12–15'      }, kyong: { weight: 30,  sets: 3, reps: '10–15'     } },
-      { id: 'pallof_c',         name: 'Pallof Press',           john: { weight: 50,  sets: 3, reps: '10–12/side' }, kyong: { weight: 20,  sets: 3, reps: '10–12/side'} },
+      { id: 'bicep_curl',       name: 'Bicep Curl',             john: { weight: 50,  sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '8–12'      } },
+      { id: 'ab_crunch',        name: 'Ab Crunch',              john: { weight: 100, sets: 3, reps: '10–15'      }, kyong: { weight: 50,  sets: 3, reps: '10–15'     } },
     ]
   },
   {
-    num: 4, name: 'Push B', focus: 'Shoulders · Triceps · Chest vol.',
+    num: 4, name: 'Push B', focus: 'Shoulders · Triceps · Chest vol. · Delts',
     exercises: [
       { id: 'shoulder_press_b', name: 'Shoulder Press',         john: { weight: 50,  sets: 3, reps: '10–12'      }, kyong: { weight: 10,  sets: 3, reps: '10–12'     } },
+      { id: 'lateral_raise',    name: 'Lateral Raise',          john: { weight: 20,  sets: 3, reps: '10–15'      }, kyong: { weight: 10,  sets: 3, reps: '10–15'     } },
       { id: 'triceps_pushdown', name: 'Triceps Pushdown',       john: { weight: 60,  sets: 3, reps: '10–12'      }, kyong: { weight: 20,  sets: 3, reps: '10–12'     } },
       { id: 'pec_fly',          name: 'Pec Fly',                john: { weight: 115, sets: 3, reps: '8–12'       }, kyong: { weight: 10,  sets: 3, reps: '10–12'     } },
       { id: 'hello_dolly_b',    name: 'Hello Dollies',          john: { weight: null, sets: 3, reps: '10'        }, kyong: { weight: null, sets: 3, reps: '10'       }, isBodyweight: true },
     ]
   },
   {
-    num: 5, name: 'Lower B', focus: 'Quads · Hamstrings · Calves vol.',
+    num: 5, name: 'Lower B', focus: 'Quads · Hamstrings · Calves vol. · Hips',
     exercises: [
       { id: 'leg_press_b',      name: 'Leg Press (vol.)',       john: { weight: 200, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
       { id: 'ham_curl_b',       name: 'Hamstring Curl',         john: { weight: 65,  sets: 3, reps: '10'         }, kyong: { weight: 20,  sets: 3, reps: '10'        } },
       { id: 'calf_raise',       name: 'Calf Raise (Leg Press)', john: { weight: 160, sets: 3, reps: '10'         }, kyong: { weight: 50,  sets: 3, reps: '10'        } },
+      { id: 'hip_adduction',    name: 'Hip Adduction',          john: { weight: 50,  sets: 3, reps: '10–15'      }, kyong: { weight: 10,  sets: 3, reps: '10–15'     } },
       { id: 'pallof_e',         name: 'Pallof Press',           john: { weight: 50,  sets: 3, reps: '10–12/side' }, kyong: { weight: 20,  sets: 3, reps: '10–12/side'} },
     ]
   }
@@ -654,6 +664,7 @@ const EXERCISE_IMAGES = {
   shoulder_press_a: 'images/shoulder_press.png',
   shoulder_press_b: 'images/shoulder_press.png',
   triceps_ext:      'images/triceps_extension.png',
+  arm_curl:         'images/arm_curl.png',
   pallof_a:         'images/pallof_press.png',
   pallof_c:         'images/pallof_press.png',
   pallof_e:         'images/pallof_press.png',
@@ -661,15 +672,20 @@ const EXERCISE_IMAGES = {
   leg_press_b:      'images/leg_press.png',
   leg_curl_a:       'images/leg_curl.png',
   leg_ext_a:        'images/leg_extensions.png',
+  hip_abduction:    'images/hip_abduction.png',
   hello_dolly_a:    'images/hello_dollies.png',
   hello_dolly_b:    'images/hello_dollies.png',
   lat_pulldown:     'images/lat_pulldowns.png',
   seated_row:       'images/seated_row.png',
   face_pull:        'images/face_pull.png',
+  bicep_curl:       'images/bicep_curl.png',
+  ab_crunch:        'images/ab_crunch.png',
+  lateral_raise:    'images/lateral_raise.png',
   triceps_pushdown: 'images/triceps_pushdowns.png',
   pec_fly:          'images/pec_fly.png',
   ham_curl_b:       'images/hamstring_curl.png',
   calf_raise:       'images/calf_raise.png',
+  hip_adduction:    'images/hip_adduction.png',
 };
 
 // Dark variants for home/day cards only. Dedicated exercise-view stays on EXERCISE_IMAGES.
@@ -678,6 +694,7 @@ const EXERCISE_IMAGES_DARK = {
   shoulder_press_a: 'images/shoulder_press_dk.png',
   shoulder_press_b: 'images/shoulder_press_dk.png',
   triceps_ext:      'images/triceps_extension_dk.png',
+  arm_curl:         'images/arm_curl_dk.png',
   pallof_a:         'images/pallof_press_dk.png',
   pallof_c:         'images/pallof_press_dk.png',
   pallof_e:         'images/pallof_press_dk.png',
@@ -685,15 +702,20 @@ const EXERCISE_IMAGES_DARK = {
   leg_press_b:      'images/leg_press_dk.png',
   leg_curl_a:       'images/leg_curl_dk.png',
   leg_ext_a:        'images/leg_extensions_dk.png',
+  hip_abduction:    'images/hip_abduction_dk.png',
   hello_dolly_a:    'images/hello_dollies_dk.png',
   hello_dolly_b:    'images/hello_dollies_dk.png',
   lat_pulldown:     'images/lat_pulldowns_dk.png',
   seated_row:       'images/seated_row_dk.png',
   face_pull:        'images/face_pull_dk.png',
+  bicep_curl:       'images/bicep_curl_dk.png',
+  ab_crunch:        'images/ab_crunch_dk.png',
+  lateral_raise:    'images/lateral_raise_dk.png',
   triceps_pushdown: 'images/triceps_pushdowns_dk.png',
   pec_fly:          'images/pec_fly_dk.png',
   ham_curl_b:       'images/hamstring_curl_dk.png',
   calf_raise:       'images/calf_raise_dk.png',
+  hip_adduction:    'images/hip_adduction_dk.png',
 };
 
 // Valid stack weights from images/*.md (Weight column). Exercises without a table are omitted.
@@ -709,15 +731,27 @@ const STACK_LEG_CURL       = [10, 30, 50, 70, 90, 110, 130, 150, 170, 190];
 const STACK_HAMSTRING      = [20, 35, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185];
 // images/seated_row.md (Weight column)
 const STACK_SEATED_ROW       = [20, 30, 40, 50, 60, 70, 85, 100, 115, 130, 145, 160, 175, 190, 205, 220, 235];
+// images/arm_curl.md (Weight column)
+const STACK_ARM_CURL         = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190];
+// images/bicep_curl.md, images/lateral_raise.md (Weight column)
+const STACK_BICEP_CURL       = [10, 20, 30, 40, 50, 65, 80, 95, 110, 125, 140, 155, 170, 185, 200];
+// images/hip_abduction.md, images/hip_adduction.md (Weight column)
+const STACK_HIP_MACHINE      = [10, 30, 50, 70, 90, 110, 130, 150, 170, 190];
+// images/ab_crunch.md (Weight column)
+const STACK_AB_CRUNCH        = [50, 100, 110, 120, 130, 140, 150];
 
 const EXERCISE_STACK_WEIGHTS = {
   chest_press:      STACK_VERTICAL_CHEST,
   shoulder_press_a: STACK_SHOULDER,
   shoulder_press_b: STACK_SHOULDER,
   triceps_ext:      STACK_TRICEPS_EXT,
+  arm_curl:         STACK_ARM_CURL,
   lat_pulldown:     STACK_LAT,
   seated_row:       STACK_SEATED_ROW,
   face_pull:        STACK_PALLOF,
+  bicep_curl:       STACK_BICEP_CURL,
+  ab_crunch:        STACK_AB_CRUNCH,
+  lateral_raise:    STACK_BICEP_CURL,
   triceps_pushdown: STACK_LAT,
   pec_fly:          STACK_LEG_EXT,
   pallof_a:         STACK_PALLOF,
@@ -726,6 +760,8 @@ const EXERCISE_STACK_WEIGHTS = {
   leg_press_a:      STACK_LEG_PRESS,
   leg_press_b:      STACK_LEG_PRESS,
   calf_raise:       STACK_LEG_PRESS,
+  hip_abduction:    STACK_HIP_MACHINE,
+  hip_adduction:    STACK_HIP_MACHINE,
   leg_curl_a:       STACK_LEG_CURL,
   leg_ext_a:        STACK_LEG_EXT,
   ham_curl_b:       STACK_HAMSTRING,
@@ -805,7 +841,8 @@ function defaultCurrentWeek() {
     startDate: todayStr(),
     days: Object.fromEntries([1,2,3,4,5].map(n => [n, defaultDayState()])),
     notes: '',
-    exerciseNotes: {}
+    exerciseNotes: {},
+    weightBaseline: null
   };
 }
 
@@ -817,6 +854,7 @@ function buildFreshState() {
     history: []
   };
   normalizeStackWeights(s);
+  s.currentWeek.weightBaseline = JSON.parse(JSON.stringify(s.weights));
   return s;
 }
 
@@ -839,6 +877,10 @@ function loadState() {
     });
     if (!s.currentWeek.exerciseNotes || typeof s.currentWeek.exerciseNotes !== 'object') {
       s.currentWeek.exerciseNotes = {};
+    }
+    if (!s.currentWeek.weightBaseline || typeof s.currentWeek.weightBaseline !== 'object') {
+      s.currentWeek.weightBaseline = JSON.parse(JSON.stringify(s.weights || {}));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /* ignore */ }
     }
     if (normalizeStackWeights(s)) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /* ignore */ }
@@ -947,6 +989,186 @@ function exerciseNotesHistoryHtml(exerciseNotes) {
   if (!parts.length) return '';
   return '<div class="history-exercise-notes"><div class="history-exercise-notes-label">Per-exercise notes</div>' +
     parts.join('') + '</div>';
+}
+
+function programExerciseIds() {
+  const ids = new Set();
+  DAYS.forEach(d => d.exercises.forEach(ex => { ids.add(ex.id); }));
+  return ids;
+}
+
+function buildWeightChangeList(weekBaseline, currentWeights) {
+  const rows = [];
+  DAYS.forEach(d => {
+    d.exercises.forEach(ex => {
+      if (ex.isBodyweight) return;
+      const id = ex.id;
+      const b = weekBaseline[id] || {};
+      const c = currentWeights[id] || {};
+      ['john', 'kyong'].forEach(person => {
+        const prev = b[person];
+        const now = c[person];
+        if (prev === now) return;
+        const delta = (typeof prev === 'number' && typeof now === 'number') ? now - prev : null;
+        rows.push({
+          day: d.num,
+          dayName: d.name,
+          exerciseId: id,
+          exerciseName: ex.name,
+          person: person === 'john' ? 'John' : 'Kyong',
+          personKey: person,
+          atWeekStart: prev ?? null,
+          now: now ?? null,
+          delta
+        });
+      });
+    });
+  });
+  return rows;
+}
+
+function buildAiWeekBundleObject() {
+  const baseline = state.currentWeek.weightBaseline || {};
+  const cur = state.weights || {};
+  const weightChanges = buildWeightChangeList(baseline, cur);
+  return {
+    exportedAt: new Date().toISOString(),
+    app: 'IronLog',
+    weekStartDate: state.currentWeek.startDate,
+    weeklyNotes: state.currentWeek.notes || '',
+    exerciseNotes: JSON.parse(JSON.stringify(state.currentWeek.exerciseNotes || {})),
+    days: JSON.parse(JSON.stringify(state.currentWeek.days)),
+    weightsAtWeekStart: JSON.parse(JSON.stringify(baseline)),
+    weightsCurrent: JSON.parse(JSON.stringify(cur)),
+    weightChanges,
+    program: DAYS.map(d => ({
+      day: d.num,
+      name: d.name,
+      focus: d.focus,
+      exercises: d.exercises.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        isBodyweight: !!ex.isBodyweight,
+        defaultJohn: ex.john && ex.john.weight,
+        defaultKyong: ex.kyong && ex.kyong.weight
+      }))
+    }))
+  };
+}
+
+function buildAiWeekMarkdown(bundle) {
+  const lines = [];
+  lines.push('# IronLog week export');
+  lines.push('');
+  lines.push('Week of **' + bundle.weekStartDate + '**. Exported ' + bundle.exportedAt + '.');
+  lines.push('');
+  lines.push('## Weekly notes');
+  lines.push(String(bundle.weeklyNotes || '').trim() || '_None_');
+  lines.push('');
+  lines.push('## Per-exercise notes');
+  const en = bundle.exerciseNotes || {};
+  const idTo = {};
+  DAYS.forEach(d => d.exercises.forEach(ex => { idTo[ex.id] = ex.name; }));
+  let anyNote = false;
+  for (const [id, text] of Object.entries(en)) {
+    const t = String(text || '').trim();
+    if (!t) continue;
+    anyNote = true;
+    lines.push('- **' + (idTo[id] || id) + '**: ' + t.replace(/\n/g, ' '));
+  }
+  if (!anyNote) lines.push('_None_');
+  lines.push('');
+  lines.push('## Weight changes this week (vs week start snapshot)');
+  if (!bundle.weightChanges.length) lines.push('_No machine weight changes recorded since week start._');
+  else {
+    bundle.weightChanges.forEach(r => {
+      lines.push('- Day ' + r.day + ' · **' + r.exerciseName + '** · ' + r.person + ': ' + r.atWeekStart + ' → ' + r.now +
+        (r.delta != null ? ' (_Δ ' + (r.delta > 0 ? '+' : '') + r.delta + ')_' : ''));
+    });
+  }
+  lines.push('');
+  lines.push('## Full weight table (current)');
+  lines.push('| Exercise | John | Kyong |');
+  lines.push('|---|---:|---:|');
+  DAYS.forEach(d => {
+    d.exercises.forEach(ex => {
+      if (ex.isBodyweight) return;
+      const w = bundle.weightsCurrent[ex.id] || {};
+      lines.push('| ' + ex.name + ' | ' + (w.john ?? '') + ' | ' + (w.kyong ?? '') + ' |');
+    });
+  });
+  lines.push('');
+  lines.push('## For your model: reply JSON format');
+  lines.push('Return **only** valid JSON (no markdown fences) using this shape so IronLog can import it:');
+  lines.push('');
+  lines.push('```');
+  lines.push('{');
+  lines.push('  "suggestedWeights": {');
+  lines.push('    "chest_press": { "john": 125, "kyong": 20 },');
+  lines.push('    "lat_pulldown": { "john": 100, "kyong": 30 }');
+  lines.push('  },');
+  lines.push('  "coachNotes": "Short rationale for next week."');
+  lines.push('}');
+  lines.push('```');
+  lines.push('');
+  lines.push('Use exercise `id` keys from the machine bundle JSON (`program[].exercises[].id`). Omit exercises you do not want to change.');
+  lines.push('');
+  return lines.join('\n');
+}
+
+function downloadTextFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime || 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadAiWeekPack() {
+  const bundle = buildAiWeekBundleObject();
+  const stamp = String(bundle.weekStartDate || todayStr()).replace(/[^\d-]+/g, '');
+  const json = JSON.stringify(bundle, null, 2);
+  const md = buildAiWeekMarkdown(bundle);
+  downloadTextFile('ironlog-week-ai-' + stamp + '.json', json, 'application/json');
+  setTimeout(() => {
+    downloadTextFile('ironlog-week-ai-' + stamp + '.md', md, 'text/markdown;charset=utf-8');
+  }, 350);
+}
+
+function applySuggestedWeightsFromPaste(raw) {
+  const valid = programExerciseIds();
+  let obj;
+  try {
+    obj = JSON.parse(String(raw || '').trim());
+  } catch (e) {
+    alert('Could not parse JSON: ' + (e && e.message ? e.message : String(e)));
+    return;
+  }
+  const sw = obj.suggestedWeights && typeof obj.suggestedWeights === 'object' ? obj.suggestedWeights : obj;
+  let applied = 0;
+  for (const [id, w] of Object.entries(sw)) {
+    if (!valid.has(id)) continue;
+    if (!w || typeof w !== 'object') continue;
+    if (!state.weights[id]) state.weights[id] = {};
+    if (w.john !== undefined && w.john !== null && String(w.john).trim() !== '') {
+      const n = Number(w.john);
+      if (!isNaN(n) && n > 0) { state.weights[id].john = n; applied++; }
+    }
+    if (w.kyong !== undefined && w.kyong !== null && String(w.kyong).trim() !== '') {
+      const n = Number(w.kyong);
+      if (!isNaN(n) && n > 0) { state.weights[id].kyong = n; applied++; }
+    }
+  }
+  if (!applied) {
+    alert('No matching suggestedWeights entries applied. Use exercise id keys like chest_press with john / kyong numbers.');
+    return;
+  }
+  normalizeStackWeights(state);
+  saveState();
+  render();
+  alert('Applied ' + applied + ' weight field(s). Values snap to valid stack plates where configured.');
 }
 
 function buildStepper(initialValue, onChange, { min = 0, step = 1 } = {}) {
@@ -1524,6 +1746,29 @@ function buildNotesPanel() {
   textarea.addEventListener('input', e => { state.currentWeek.notes = e.target.value; saveState(); });
   panel.appendChild(textarea);
 
+  panel.insertAdjacentHTML('beforeend', '<div class="section-label">AI week pack (export / import)</div>');
+
+  const packBtn = document.createElement('button');
+  packBtn.type = 'button';
+  packBtn.className = 'action-btn btn-week-pack';
+  packBtn.textContent = 'Download AI week pack (.json + .md)';
+  packBtn.title = 'Includes weekly notes, per-exercise notes, day checkboxes, weights at week start vs now, and weight deltas.';
+  packBtn.addEventListener('click', () => downloadAiWeekPack());
+  panel.appendChild(packBtn);
+
+  panel.insertAdjacentHTML('beforeend', '<div class="ai-import-label">Paste suggested weights (JSON)</div>');
+  const importTa = document.createElement('textarea');
+  importTa.className = 'ai-import-textarea';
+  importTa.placeholder = '{"suggestedWeights":{"chest_press":{"john":130,"kyong":25}},"coachNotes":"…"}';
+  panel.appendChild(importTa);
+
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.className = 'action-btn btn-apply-ai';
+  applyBtn.textContent = 'Apply suggested weights';
+  applyBtn.addEventListener('click', () => applySuggestedWeightsFromPaste(importTa.value));
+  panel.appendChild(applyBtn);
+
   const newWeekBtn = document.createElement('button');
   newWeekBtn.type = 'button';
   newWeekBtn.className = 'action-btn btn-new-week' + (complete ? ' ready' : '');
@@ -1564,13 +1809,18 @@ function buildNotesPanel() {
 // ─── New week ─────────────────────────────────────────────────────────────────
 
 function startNewWeek() {
+  const weightStart = JSON.parse(JSON.stringify(state.currentWeek.weightBaseline || {}));
+  const weightEnd = JSON.parse(JSON.stringify(state.weights));
   state.history.push({
     startDate: state.currentWeek.startDate,
     notes: state.currentWeek.notes,
     exerciseNotes: JSON.parse(JSON.stringify(state.currentWeek.exerciseNotes || {})),
-    days: JSON.parse(JSON.stringify(state.currentWeek.days))
+    days: JSON.parse(JSON.stringify(state.currentWeek.days)),
+    weightsAtWeekStart: weightStart,
+    weightsAtWeekEnd: weightEnd
   });
   state.currentWeek = defaultCurrentWeek();
+  state.currentWeek.weightBaseline = JSON.parse(JSON.stringify(state.weights));
   saveState();
   downloadHistory();
   activeTab = 1;
