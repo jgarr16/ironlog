@@ -108,6 +108,8 @@ All data lives in `localStorage`. No sync, no cloud, no accounts.
 
 On **Start New Week**, the app exports a cumulative `ironlog-history.json` to your Downloads folder before clearing the current week. Keep that file — it's your only backup.
 
+For reviewing those exports with an LLM (program context, JSON semantics, current exercise ids), use the copy-paste prompt in [docs/llm-history-review-prompt.md](docs/llm-history-review-prompt.md).
+
 ---
 
 ## Getting Started
