@@ -60,20 +60,24 @@ No Firebase. No npm. No frameworks. One file.
 
 ## Workout Program
 
-### Day 1 — Push A · Chest · Shoulders · Triceps
+These tables mirror the live program in `index.html` (`const DAYS`). When you add or reorder exercises, update both places (and [docs/llm-history-review-prompt.md](docs/llm-history-review-prompt.md)) so the app, README, and export-review prompt stay aligned.
+
+### Day 1 — Push A · Chest · Shoulders · Triceps · Arms
 | Exercise | John | Kyong |
 |---|---|---|
 | Chest Press | 125lb × 3×6–10 | 20lb × 3×8–12 |
 | Shoulder Press | 50lb × 3×6–10 | 10lb × 3×10 |
 | Triceps Extension | 60lb × 3×8–12 | 10lb × 3×8–12 |
+| Arm Curl | 50lb × 3×8–12 | 10lb × 3×8–12 |
 | Pallof Press | 50lb × 3×10–12/side | 20lb × 3×10–12/side |
 
-### Day 2 — Lower A · Quads · Hamstrings · Glutes
+### Day 2 — Lower A · Quads · Hamstrings · Glutes · Hips
 | Exercise | John | Kyong |
 |---|---|---|
 | Leg Press | 260lb × 3×6–10 | 60lb × 3×10–12 |
 | Leg Curl | 90lb × 3×8–12 | 20lb × 3×8–12 |
 | Leg Extension | 115lb × 3×8–12 | 25lb × 3×8–12 |
+| Hip Abduction | 50lb × 3×10–15 | 10lb × 3×10–15 |
 | Hello Dollies (bodyweight) | 3×10 | 3×10 |
 
 ### Day 3 — Pull A · Back · Biceps · Rear Delts
@@ -82,22 +86,25 @@ No Firebase. No npm. No frameworks. One file.
 | Lat Pulldown | 100lb × 3×10–12 | 30lb × 3×10–12 |
 | Seated Row | 100lb × 3×10–12 | 30lb × 3×10–12 |
 | Face Pull | 40lb × 3×12–15 | 30lb × 3×10–15 |
-| Pallof Press | 50lb × 3×10–12/side | 20lb × 3×10–12/side |
+| Bicep Curl | 50lb × 3×8–12 | 10lb × 3×8–12 |
+| Ab Crunch | 100lb × 3×10–15 | 50lb × 3×10–15 |
 
-### Day 4 — Push B · Shoulders · Triceps · Chest (volume)
+### Day 4 — Push B · Shoulders · Triceps · Chest vol. · Delts
 | Exercise | John | Kyong |
 |---|---|---|
 | Shoulder Press | 50lb × 3×10–12 | 10lb × 3×10–12 |
+| Lateral Raise | 20lb × 3×10–15 | 10lb × 3×10–15 |
 | Triceps Pushdown | 60lb × 3×10–12 | 20lb × 3×10–12 |
 | Pec Fly | 115lb × 3×8–12 | 10lb × 3×10–12 |
 | Hello Dollies (bodyweight) | 3×10 | 3×10 |
 
-### Day 5 — Lower B · Quads · Hamstrings · Calves (volume)
+### Day 5 — Lower B · Quads · Hamstrings · Calves vol. · Hips
 | Exercise | John | Kyong |
 |---|---|---|
 | Leg Press (vol.) | 200lb × 3×10 | 50lb × 3×10 |
 | Hamstring Curl | 65lb × 3×10 | 20lb × 3×10 |
 | Calf Raise (Leg Press) | 160lb × 3×10 | 50lb × 3×10 |
+| Hip Adduction | 50lb × 3×10–15 | 10lb × 3×10–15 |
 | Pallof Press | 50lb × 3×10–12/side | 20lb × 3×10–12/side |
 
 ---
