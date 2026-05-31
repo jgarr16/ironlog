@@ -26,7 +26,7 @@ Live app: https://jgarr16.github.io/ironlog/
 ## How the program behaves in the app
 - **Five lifting days:** Day 1 … Day 5, each with a fixed exercise list (see “Current program canon” below).
 - **Weights complete for a day:** every exercise on that day’s list has `done[exerciseId] === true` for that day in `days`.
-- **Week tab “cardio complete” for a day:** John has “Swam” checked AND Kyong has both “Treadmill” and “Stairway” checked. John’s lap count and body-weight number on the cardio card are stored; the strict cardio-complete summary follows the three-check rule above.
+- **Week tab “cardio complete” for a day:** John has “Swam” checked AND Kyong has both “Treadmill” and “Elliptical” checked. John’s lap count and body-weight number on the cardio card are stored; the strict cardio-complete summary follows the three-check rule above.
 - **Assist checkboxes:** `assistDone.pullups` and `assistDone.dips` refer to John’s daily pull-up/dip tracking, not the main lift checklist.
 - **Start New Week:** appends one archived week object to the in-memory history, resets the current week’s completion and notes, preserves rolling weights, then downloads the full history array as `ironlog-history.json`.
 
@@ -36,35 +36,35 @@ All recommendations for “what to do next” must refer **only** to this lineup
 **Day 1 — Push A** (Chest · Shoulders · Triceps · Arms)
 | id | name | John | Kyong |
 |----|------|------|-------|
-| chest_press | Chest Press | 125 lb, 3×6–10 | 20 lb, 3×8–12 |
+| chest_press | Chest Press | 125 lb, 3×6–10 | 35 lb, 3×8–12 |
 | shoulder_press_a | Shoulder Press | 50 lb, 3×6–10 | 10 lb, 3×10 |
-| triceps_ext | Triceps Extension | 60 lb, 3×8–12 | 10 lb, 3×8–12 |
+| triceps_ext | Triceps Extension | 65 lb, 3×8–12 | 10 lb, 3×8–12 |
 | arm_curl | Arm Curl | 50 lb, 3×8–12 | 10 lb, 3×8–12 |
-| pallof_a | Pallof Press | 50 lb, 3×10–12/side | 20 lb, 3×10–12/side |
+| pallof_a | Pallof Press | 50 lb, 3×10–12/side | 40 lb, 3×10–12/side |
 
 **Day 2 — Lower A** (Quads · Hamstrings · Glutes · Hips)
 | id | name | John | Kyong |
 |----|------|------|-------|
-| leg_press_a | Leg Press | 260 lb, 3×6–10 | 60 lb, 3×10–12 |
-| leg_curl_a | Leg Curl | 90 lb, 3×8–12 | 20 lb, 3×8–12 |
+| leg_press_a | Leg Press | 180 lb, 3×6–10 | 60 lb, 3×10–12 |
+| leg_curl_a | Leg Curl | 90 lb, 3×8–12 | 50 lb, 3×8–12 |
 | leg_ext_a | Leg Extension | 115 lb, 3×8–12 | 25 lb, 3×8–12 |
-| hip_abduction | Hip Abduction | 50 lb, 3×10–15 | 10 lb, 3×10–15 |
+| hip_abduction | Hip Abduction | 110 lb, 3×10–15 | 50 lb, 3×10–15 |
 | hello_dolly_a | Hello Dollies (bodyweight) | 3×10 | 3×10 |
 
 **Day 3 — Pull A** (Back · Biceps · Rear Delts)
 | id | name | John | Kyong |
 |----|------|------|-------|
 | lat_pulldown | Lat Pulldown | 100 lb, 3×10–12 | 30 lb, 3×10–12 |
-| seated_row | Seated Row | 100 lb, 3×10–12 | 30 lb, 3×10–12 |
-| face_pull | Face Pull | 40 lb, 3×12–15 | 30 lb, 3×10–15 |
-| bicep_curl | Bicep Curl | 50 lb, 3×8–12 | 10 lb, 3×8–12 |
-| ab_crunch | Ab Crunch | 100 lb, 3×10–15 | 50 lb, 3×10–15 |
+| seated_row | Seated Row | 100 lb, 3×10–12 | 40 lb, 3×10–12 |
+| face_pull | Face Pull | 50 lb, 3×12–15 | 30 lb, 3×10–15 |
+| bicep_curl | Bicep Curl | 80 lb, 3×8–12 | 30 lb, 3×8–12 |
+| ab_crunch | Ab Crunch | 50 lb, 3×10–15 | 50 lb, 3×10–15 |
 
 **Day 4 — Push B** (Shoulders · Triceps · Chest vol. · Delts)
 | id | name | John | Kyong |
 |----|------|------|-------|
 | shoulder_press_b | Shoulder Press | 50 lb, 3×10–12 | 10 lb, 3×10–12 |
-| lateral_raise | Lateral Raise | 20 lb, 3×10–15 | 10 lb, 3×10–15 |
+| lateral_raise | Lateral Raise | 65 lb, 3×10–15 | 10 lb, 3×10–15 |
 | triceps_pushdown | Triceps Pushdown | 60 lb, 3×10–12 | 20 lb, 3×10–12 |
 | pec_fly | Pec Fly | 115 lb, 3×8–12 | 10 lb, 3×10–12 |
 | hello_dolly_b | Hello Dollies (bodyweight) | 3×10 | 3×10 |
@@ -72,11 +72,11 @@ All recommendations for “what to do next” must refer **only** to this lineup
 **Day 5 — Lower B** (Quads · Hamstrings · Calves vol. · Hips)
 | id | name | John | Kyong |
 |----|------|------|-------|
-| leg_press_b | Leg Press (vol.) | 200 lb, 3×10 | 50 lb, 3×10 |
+| leg_press_b | Leg Press (vol.) | 180 lb, 3×10 | 80 lb, 3×10 |
 | ham_curl_b | Hamstring Curl | 65 lb, 3×10 | 20 lb, 3×10 |
-| calf_raise | Calf Raise (Leg Press) | 160 lb, 3×10 | 50 lb, 3×10 |
-| hip_adduction | Hip Adduction | 50 lb, 3×10–15 | 10 lb, 3×10–15 |
-| pallof_e | Pallof Press | 50 lb, 3×10–12/side | 20 lb, 3×10–12/side |
+| calf_raise | Calf Raise (Leg Press) | 160 lb, 3×10 | 60 lb, 3×10 |
+| hip_adduction | Hip Adduction | 90 lb, 3×10–15 | 50 lb, 3×10–15 |
+| pallof_e | Pallof Press | 50 lb, 3×10–12/side | 40 lb, 3×10–12/side |
 
 **Resolving names in JSON:** Map any `done` key, `exerciseNotes` key, or weight key using the **id** column above. If the README on GitHub disagrees with this table, treat **this table as correct for the version of IronLog that shipped with this prompt** (it is copied from `index.html`). Optional cross-check: https://github.com/jgarr16/ironlog/blob/main/README.md
 
@@ -99,7 +99,7 @@ Each element is one closed week and usually includes:
 - `exerciseNotes` — object: exercise **id** → free-text notes from that week (may be empty `{}`).
 - `days` — object with keys `"1"` … `"5"`. Each day typically has:
   - `done` — map exercise id → `true` if checked off; missing or not `true` means not logged complete.
-  - `cardio` — `john` (`swam`, `laps`, `weight`, etc.) and `kyong` (`treadmill`, `stairway`).
+  - `cardio` — `john` (`swam`, `laps`, `weight`, etc.) and `kyong` (`treadmill`, `elliptical`; older exports may say `stairway` for the same slot).
   - `assistDone` — `pullups`, `dips` booleans (John).
 - `weightsAtWeekStart` and `weightsAtWeekEnd` — snapshots `{ [exerciseId]: { john: number, kyong: number } }` at archive time. Use them for within-week weight movement. Older exports may omit these fields.
 
